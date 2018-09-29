@@ -20,7 +20,8 @@ dcount=-100
 dcount1=-1
 dcount2=0
 dblocks=[]
-
+dblim=0
+dbnumber=-1
 # player var-s
 xplayer=0
 yplayer=0
@@ -38,14 +39,17 @@ class deathblock:
     argy = int()
     args=False
     def get_arg(self , arg1, arg2):
-        self.argx=arg1*40
-        self.argy=arg2*40
+        self.argx=arg1
+        self.argy=arg2
         self.args=True
     def draw(self):
         if self.args:
             global palive
             win.blit(dblock, (self.argx, self.argy))
-            if xplayer>=self.argx and xplayer<=self.argx+40 and yplayer>=self.argy and yplayer<=self.argy+40:
+            if (xplayer>=self.argx and xplayer<=self.argx+40 and yplayer>=self.argy and yplayer<=self.argy+40) \
+                    or (xplayer+playerw>=self.argx and xplayer+playerw<=self.argx+40 and yplayer>=self.argy and yplayer<=self.argy+40) \
+                    or (xplayer + playerw >= self.argx and xplayer + playerw <= self.argx + 40 and yplayer+playerh >= self.argy and yplayer+playerh <= self.argy + 40) \
+                    or (xplayer >= self.argx and xplayer <= self.argx + 40 and yplayer+playerh >= self.argy and yplayer+playerh <= self.argy + 40):
                 palive=False
 
 
@@ -63,7 +67,7 @@ def DrawWindow(dc):
     if palive:
         pygame.draw.rect(win,(0,0,0),(xplayer,yplayer,playerw,playerh))
 
-    for dd in range(0,dc):
+    for dd in range(0,dbnumber):
         dblocks[dd].draw()
     pygame.display.update()
 
@@ -84,17 +88,38 @@ while run:
 
     pygame.time.delay(10)
     dcount+=1
-    if dcount==20 and dcount2<16:
+    if dcount==2 and dcount2<16 and dbnumber<256:
         dcount=0
         dcount1+=1
-        if dcount1==16:
-            dcount1=0
+        if dcount1==15-2*dblim:
+            dblim+=1
             dcount2+=1
+            dcount1=0
+            dbnumber += 1
             dblocks.append(deathblock())
-            dblocks[dcount1 + dcount2 * 16].get_arg(dcount1, dcount2)
+            dblocks[dbnumber].get_arg((dblim + dcount1) * 40, dcount2 * 40)
+            dbnumber += 1
+            dblocks.append(deathblock())
+            dblocks[dbnumber].get_arg(600 - (dblim + dcount1) * 40, 600 - dcount2 * 40)
+            dbnumber += 1
+            dblocks.append(deathblock())
+            dblocks[dbnumber].get_arg(600 - dcount2 * 40, (dblim + dcount1) * 40)
+            dbnumber += 1
+            dblocks.append(deathblock())
+            dblocks[dbnumber].get_arg(dcount2 * 40, 600 - (dblim + dcount1) * 40)
         else:
+            dbnumber += 1
             dblocks.append(deathblock())
-            dblocks[dcount1+dcount2*16].get_arg(int(dcount1), int(dcount2))
+            dblocks[dbnumber].get_arg((dblim+dcount1)*40, dcount2*40)
+            dbnumber += 1
+            dblocks.append(deathblock())
+            dblocks[dbnumber].get_arg(600-(dblim+dcount1)*40, 600-dcount2*40)
+            dbnumber += 1
+            dblocks.append(deathblock())
+            dblocks[dbnumber].get_arg(600-dcount2*40, (dblim+dcount1)*40)
+            dbnumber += 1
+            dblocks.append(deathblock())
+            dblocks[dbnumber].get_arg(dcount2*40, 600-(dblim+dcount1)*40)
 
     DrawWindow(dcount1+dcount2*16)
 
