@@ -16,7 +16,7 @@ pygame.display.set_caption("Tiny Battle Royale")
 
 bg=pygame.image.load('background.jpg')
 dblock=pygame.image.load('deathblock.png')
-dcount=-100
+dcount=-1000
 dcount1=-1
 dcount2=0
 dblocks=[]
@@ -26,7 +26,7 @@ dbnumber=-1
 bulletsprite=[pygame.image.load('bullet1.png'),pygame.image.load('bullet2.png'),pygame.image.load('bullet3.png')]
 bulletlistsq=0
 bulleta=20
-bulletspeed=10
+bulletspeed=15
 shootcd=0
 shootcdb=False
 leftbullets=[]
@@ -84,7 +84,11 @@ class bullet:
         if (xplayer>=self.xbullet and xplayer<=self.xbullet+20 and yplayer>=self.ybullet and yplayer<=self.ybullet+20) \
                 or (xplayer+playerw>=self.xbullet and xplayer+playerw<=self.xbullet+20 and yplayer>=self.ybullet and yplayer<=self.ybullet+20) \
                 or (xplayer + playerw >= self.xbullet and xplayer + playerw <= self.xbullet + 20 and yplayer+playerh >= self.ybullet and yplayer+playerh <= self.ybullet + 20) \
-                or (xplayer >= self.xbullet and xplayer <= self.xbullet + 20 and yplayer+playerh >= self.ybullet and yplayer+playerh <= self.ybullet + 20):
+                or (xplayer >= self.xbullet and xplayer <= self.xbullet + 20 and yplayer+playerh >= self.ybullet and yplayer+playerh <= self.ybullet + 20) \
+                or (xplayer + playerw//2 >= self.xbullet and xplayer + playerw//2 <= self.xbullet + 20 and yplayer + playerh >= self.ybullet and yplayer + playerh <= self.ybullet + 20) \
+                or (xplayer + playerw >= self.xbullet and xplayer + playerw <= self.xbullet + 20 and yplayer + playerh//2  >= self.ybullet and yplayer + playerh//2  <= self.ybullet + 20) \
+                or (xplayer >= self.xbullet and xplayer <= self.xbullet + 20 and yplayer + playerh//2 >= self.ybullet and yplayer + playerh//2 <= self.ybullet + 20) \
+                or (xplayer +playerw//2 >= self.xbullet and xplayer +playerw//2 <= self.xbullet + 20 and yplayer >= self.ybullet and yplayer <= self.ybullet + 20):
             palive=False
 
 
@@ -222,7 +226,7 @@ while run:
         if keys[pygame.K_i]:
             upbullets.append(bullet())
             upbulletsx.append(xplayer+(playerw-bulleta)//2)
-            upbulletsy.append(yplayer-1)
+            upbulletsy.append(yplayer-bulleta-1)
         elif keys[pygame.K_k]:
             downbullets.append(bullet())
             downbulletsx.append(xplayer+(playerw-bulleta)//2)
@@ -233,7 +237,7 @@ while run:
             rightbulletsy.append(yplayer+(playerh-bulleta)//2)
         elif keys[pygame.K_j]:
             leftbullets.append(bullet())
-            leftbulletsx.append(xplayer-1)
+            leftbulletsx.append(xplayer-bulleta-1)
             leftbulletsy.append(yplayer+(playerh-bulleta)//2)
     pygame.time.delay(10)
     DrawWindow()
