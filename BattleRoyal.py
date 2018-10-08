@@ -16,13 +16,13 @@ pygame.display.set_caption("Tiny Battle Royale")
 
 bg=pygame.image.load('background.jpg')
 dblock=pygame.image.load('deathblock.png')
-dcount=-1000
+dcount=-100
 dcount1=-1
 dcount2=0
 dblocks=[]
 dblim=0
 dbnumber=-1
-#bullets
+#bullet
 bulletsprite=[pygame.image.load('bullet1.png'),pygame.image.load('bullet2.png'),pygame.image.load('bullet3.png')]
 bulletlistsq=0
 bulleta=20
@@ -44,8 +44,6 @@ downbulletsy=[]
 # player var-s
 spritecondition = 0
 playersprites=[pygame.image.load('player_unit1.png'),pygame.image.load('player_unit2.png'),pygame.image.load('player_unit3.png'),pygame.image.load('player_unit4.png'),pygame.image.load('player_unit5.png'),pygame.image.load('player_unit6.png')]
-xplayer=0
-yplayer=0
 playerh=40
 playerw=40
 pspeed=10
@@ -53,7 +51,27 @@ movup=False
 movdown=False
 movright=False
 movleft=False
-palive= True
+
+
+
+class player:
+    palive = True
+    spritecondition=int()
+    def getx(self,argx):
+        self.xplayer=argx
+    def gety(self,argy):
+        self.yplayer=argy
+    def draw(self):
+        if self.palive:
+            self.spritecondition += 1
+            win.blit(playersprites[self.spritecondition // 5], (self.xplayer, self.yplayer))
+            if self.spritecondition == 29:
+                self.spritecondition = 0
+
+
+myplayer=player()
+myplayer.gety(0)
+myplayer.getx(0)
 
 class deathblock:
     argx = int()
@@ -63,13 +81,13 @@ class deathblock:
         self.argy=arg2
         self.args=True
     def draw(self):
-        global palive
         win.blit(dblock, (self.argx, self.argy))
-        if (xplayer>=self.argx and xplayer<=self.argx+40 and yplayer>=self.argy and yplayer<=self.argy+40) \
-                or (xplayer+playerw>=self.argx and xplayer+playerw<=self.argx+40 and yplayer>=self.argy and yplayer<=self.argy+40) \
-                or (xplayer + playerw >= self.argx and xplayer + playerw <= self.argx + 40 and yplayer+playerh >= self.argy and yplayer+playerh <= self.argy + 40) \
-                or (xplayer >= self.argx and xplayer <= self.argx + 40 and yplayer+playerh >= self.argy and yplayer+playerh <= self.argy + 40):
-            palive=False
+        for plyr in [myplayer]:
+            if (plyr.xplayer>=self.argx and plyr.xplayer<=self.argx+40 and plyr.yplayer>=self.argy and plyr.yplayer<=self.argy+40) \
+                    or (plyr.xplayer+playerw>=self.argx and plyr.xplayer+playerw<=self.argx+40 and plyr.yplayer>=self.argy and plyr.yplayer<=self.argy+40) \
+                    or (plyr.xplayer + playerw >= self.argx and plyr.xplayer + playerw <= self.argx + 40 and plyr.yplayer+playerh >= self.argy and plyr.yplayer+playerh <= self.argy + 40) \
+                    or (plyr.xplayer >= self.argx and plyr.xplayer <= self.argx + 40 and plyr.yplayer+playerh >= self.argy and plyr.yplayer+playerh <= self.argy + 40):
+                plyr.palive = False
 class bullet:
     spritecondition=0
     def setposition(self, arg1, arg2):
@@ -79,21 +97,17 @@ class bullet:
         self.spritecondition+=1
         if self.spritecondition==3:
             self.spritecondition=0
-        global palive
         win.blit(bulletsprite[self.spritecondition], (self.xbullet, self.ybullet))
-        if (xplayer>=self.xbullet and xplayer<=self.xbullet+20 and yplayer>=self.ybullet and yplayer<=self.ybullet+20) \
-                or (xplayer+playerw>=self.xbullet and xplayer+playerw<=self.xbullet+20 and yplayer>=self.ybullet and yplayer<=self.ybullet+20) \
-                or (xplayer + playerw >= self.xbullet and xplayer + playerw <= self.xbullet + 20 and yplayer+playerh >= self.ybullet and yplayer+playerh <= self.ybullet + 20) \
-                or (xplayer >= self.xbullet and xplayer <= self.xbullet + 20 and yplayer+playerh >= self.ybullet and yplayer+playerh <= self.ybullet + 20) \
-                or (xplayer + playerw//2 >= self.xbullet and xplayer + playerw//2 <= self.xbullet + 20 and yplayer + playerh >= self.ybullet and yplayer + playerh <= self.ybullet + 20) \
-                or (xplayer + playerw >= self.xbullet and xplayer + playerw <= self.xbullet + 20 and yplayer + playerh//2  >= self.ybullet and yplayer + playerh//2  <= self.ybullet + 20) \
-                or (xplayer >= self.xbullet and xplayer <= self.xbullet + 20 and yplayer + playerh//2 >= self.ybullet and yplayer + playerh//2 <= self.ybullet + 20) \
-                or (xplayer +playerw//2 >= self.xbullet and xplayer +playerw//2 <= self.xbullet + 20 and yplayer >= self.ybullet and yplayer <= self.ybullet + 20):
-            palive=False
-
-
-
-
+        for plyr in [myplayer]:
+            if (plyr.xplayer>=self.xbullet and plyr.xplayer<=self.xbullet+20 and plyr.yplayer>=self.ybullet and plyr.yplayer<=self.ybullet+20) \
+                    or (plyr.xplayer+playerw>=self.xbullet and plyr.xplayer+playerw<=self.xbullet+20 and plyr.yplayer>=self.ybullet and plyr.yplayer<=self.ybullet+20) \
+                    or (plyr.xplayer + playerw >= self.xbullet and plyr.xplayer + playerw <= self.xbullet + 20 and plyr.yplayer+playerh >= self.ybullet and plyr.yplayer+playerh <= self.ybullet + 20) \
+                    or (plyr.xplayer >= self.xbullet and plyr.xplayer <= self.xbullet + 20 and plyr.yplayer+playerh >= self.ybullet and plyr.yplayer+playerh <= self.ybullet + 20) \
+                    or (plyr.xplayer + playerw//2 >= self.xbullet and plyr.xplayer + playerw//2 <= self.xbullet + 20 and plyr.yplayer + playerh >= self.ybullet and plyr.yplayer + playerh <= self.ybullet + 20) \
+                    or (plyr.xplayer + playerw >= self.xbullet and plyr.xplayer + playerw <= self.xbullet + 20 and plyr.yplayer + playerh//2  >= self.ybullet and plyr.yplayer + playerh//2  <= self.ybullet + 20) \
+                    or (plyr.xplayer >= self.xbullet and plyr.xplayer <= self.xbullet + 20 and plyr.yplayer + playerh//2 >= self.ybullet and plyr.yplayer + playerh//2 <= self.ybullet + 20) \
+                    or (plyr.xplayer +playerw//2 >= self.xbullet and plyr.xplayer +playerw//2 <= self.xbullet + 20 and plyr.yplayer >= self.ybullet and plyr.yplayer <= self.ybullet + 20):
+                plyr.palive = False
 
 
 
@@ -103,12 +117,7 @@ def DrawWindow():
     win.blit(bg, (0, 0))
     global bulletlistsq
 
-    if palive:
-        global spritecondition
-        spritecondition += 1
-        win.blit(playersprites[spritecondition//5],(xplayer,yplayer))
-        if spritecondition==29:
-            spritecondition=0
+    myplayer.draw()
     bulletlistsq = 0
     for i in range(len(leftbullets)):
         leftbullets[i-bulletlistsq].setposition(leftbulletsx[i-bulletlistsq],leftbulletsy[i-bulletlistsq])
@@ -167,7 +176,6 @@ while run:
             run=False
 
 
-
     dcount+=1
     if dcount==5 and dcount2<16 and dbnumber<256:
         dcount=0
@@ -202,43 +210,47 @@ while run:
             dblocks.append(deathblock())
             dblocks[dbnumber].get_arg(dcount2*40, 600-(dblim+dcount1)*40)
 
+    if myplayer.palive:
+        keys=pygame.key.get_pressed()
 
-    keys=pygame.key.get_pressed()
-    if keys[pygame.K_w] and yplayer>0:
-        yplayer-=pspeed
-    if keys[pygame.K_s] and yplayer<winh-playerh:
-        yplayer+=pspeed
-    if keys[pygame.K_d] and xplayer<winw-playerw:
-        xplayer+=pspeed
-    if keys[pygame.K_a] and xplayer>0:
-        xplayer-=pspeed
+        if keys[pygame.K_w] and myplayer.yplayer>0:
+            myplayer.gety(myplayer.yplayer-pspeed)
+
+        if keys[pygame.K_s] and myplayer.yplayer<winh-playerh:
+            myplayer.gety(myplayer.yplayer + pspeed)
+
+        if keys[pygame.K_d] and myplayer.xplayer<winw-playerw:
+            myplayer.getx(myplayer.xplayer + pspeed)
+
+        if keys[pygame.K_a] and myplayer.xplayer>0:
+            myplayer.getx(myplayer.xplayer - pspeed)
 
 
 
 
-    shootcd+=1
-    if shootcd==10:
-        shootcdb=True
-        shootcd=0
-    if shootcdb:
-        shootcd=0
-        shootcdb=False
-        if keys[pygame.K_i]:
-            upbullets.append(bullet())
-            upbulletsx.append(xplayer+(playerw-bulleta)//2)
-            upbulletsy.append(yplayer-bulleta-1)
-        elif keys[pygame.K_k]:
-            downbullets.append(bullet())
-            downbulletsx.append(xplayer+(playerw-bulleta)//2)
-            downbulletsy.append(yplayer+playerh+1)
-        elif keys[pygame.K_l]:
-            rightbullets.append(bullet())
-            rightbulletsx.append(xplayer+playerw+1)
-            rightbulletsy.append(yplayer+(playerh-bulleta)//2)
-        elif keys[pygame.K_j]:
-            leftbullets.append(bullet())
-            leftbulletsx.append(xplayer-bulleta-1)
-            leftbulletsy.append(yplayer+(playerh-bulleta)//2)
+        shootcd+=1
+        if shootcd==10:
+            shootcdb=True
+            shootcd=0
+        if shootcdb:
+            shootcd=0
+            shootcdb=False
+            if keys[pygame.K_i]:
+                upbullets.append(bullet())
+                upbulletsx.append(myplayer.xplayer+(playerw-bulleta)//2)
+                upbulletsy.append(myplayer.yplayer-bulleta-1)
+            elif keys[pygame.K_k]:
+                downbullets.append(bullet())
+                downbulletsx.append(myplayer.xplayer+(playerw-bulleta)//2)
+                downbulletsy.append(myplayer.yplayer+playerh+1)
+            elif keys[pygame.K_l]:
+                rightbullets.append(bullet())
+                rightbulletsx.append(myplayer.xplayer+playerw+1)
+                rightbulletsy.append(myplayer.yplayer+(playerh-bulleta)//2)
+            elif keys[pygame.K_j]:
+                leftbullets.append(bullet())
+                leftbulletsx.append(myplayer.xplayer-bulleta-1)
+                leftbulletsy.append(myplayer.yplayer+(playerh-bulleta)//2)
     pygame.time.delay(10)
     DrawWindow()
 
