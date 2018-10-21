@@ -4,8 +4,12 @@ import random
 pygame.init()
 
 # UPRAVLENIE
+# 1 player
 # dvijenie-WASD
-# strelba-IJKL
+# strelba-TFGH
+# 2 player
+# dvijenie-OKL;
+# strelba-NUM8NUM4NUM5NUM6
 
 
 # Main Peremennie
@@ -16,11 +20,11 @@ clock=pygame.time.Clock()
 run=True
 
 win=pygame.display.set_mode((winw,winh))
-pygame.display.set_caption("Tiny Battle Royale")
+pygame.display.set_caption("Doka 2")
 
 bg=pygame.image.load('background.jpg')
 dblock=pygame.image.load('deathblock.png')
-dcount=-2000
+dcount=-1000
 dcount1=-1
 dcount2=0
 dblocks=[]
