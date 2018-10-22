@@ -21,10 +21,11 @@ run=True
 
 win=pygame.display.set_mode((winw,winh))
 pygame.display.set_caption("Doka 2")
+pygame.display.set_icon(pygame.image.load('icon.jpg'))
 
 bg=pygame.image.load('background.jpg')
 dblock=pygame.image.load('deathblock.png')
-dcount=-1000
+dcount=-4000
 dcount1=-1
 dcount2=0
 dblocks=[]
@@ -65,6 +66,9 @@ movleft=False
 chainupgraders=[]
 chainupcd=200
 chainsawupimage=pygame.image.load('chainsawupgrade.png')
+snakebuttonimage=pygame.image.load('snakebutton.png')
+snakebuttons=[]
+snakebuttoncd=100
 
 class bullet:
     spritecondition=0
@@ -77,14 +81,14 @@ class bullet:
             self.spritecondition=0
         win.blit(bulletsprite[self.spritecondition], (self.xbullet, self.ybullet))
         for plyr in [myplayer,myplayer1]:
-            if (plyr.xplayer>=self.xbullet and plyr.xplayer<=self.xbullet+20 and plyr.yplayer>=self.ybullet and plyr.yplayer<=self.ybullet+20) \
+            if plyr.palive and((plyr.xplayer>=self.xbullet and plyr.xplayer<=self.xbullet+20 and plyr.yplayer>=self.ybullet and plyr.yplayer<=self.ybullet+20) \
                     or (plyr.xplayer+playerw>=self.xbullet and plyr.xplayer+playerw<=self.xbullet+20 and plyr.yplayer>=self.ybullet and plyr.yplayer<=self.ybullet+20) \
                     or (plyr.xplayer + playerw >= self.xbullet and plyr.xplayer + playerw <= self.xbullet + 20 and plyr.yplayer+playerh >= self.ybullet and plyr.yplayer+playerh <= self.ybullet + 20) \
                     or (plyr.xplayer >= self.xbullet and plyr.xplayer <= self.xbullet + 20 and plyr.yplayer+playerh >= self.ybullet and plyr.yplayer+playerh <= self.ybullet + 20) \
                     or (plyr.xplayer + playerw//2 >= self.xbullet and plyr.xplayer + playerw//2 <= self.xbullet + 20 and plyr.yplayer + playerh >= self.ybullet and plyr.yplayer + playerh <= self.ybullet + 20) \
                     or (plyr.xplayer + playerw >= self.xbullet and plyr.xplayer + playerw <= self.xbullet + 20 and plyr.yplayer + playerh//2  >= self.ybullet and plyr.yplayer + playerh//2  <= self.ybullet + 20) \
                     or (plyr.xplayer >= self.xbullet and plyr.xplayer <= self.xbullet + 20 and plyr.yplayer + playerh//2 >= self.ybullet and plyr.yplayer + playerh//2 <= self.ybullet + 20) \
-                    or (plyr.xplayer +playerw//2 >= self.xbullet and plyr.xplayer +playerw//2 <= self.xbullet + 20 and plyr.yplayer >= self.ybullet and plyr.yplayer <= self.ybullet + 20):
+                    or (plyr.xplayer +playerw//2 >= self.xbullet and plyr.xplayer +playerw//2 <= self.xbullet + 20 and plyr.yplayer >= self.ybullet and plyr.yplayer <= self.ybullet + 20)):
                 plyr.palive = False
 
 
@@ -100,18 +104,84 @@ class chainsawupgrader:
     def draw(self):
         win.blit(chainsawupimage, (self.argx, self.argy))
         for plyr in [myplayer, myplayer1]:
-            if (
+            if plyr.palive and((
                     plyr.xplayer >= self.argx and plyr.xplayer <= self.argx + 40 and plyr.yplayer >= self.argy and plyr.yplayer <= self.argy + 40) \
                     or (
                     plyr.xplayer + playerw >= self.argx and plyr.xplayer + playerw <= self.argx + 40 and plyr.yplayer >= self.argy and plyr.yplayer <= self.argy + 40) \
                     or (
                     plyr.xplayer + playerw >= self.argx and plyr.xplayer + playerw <= self.argx + 40 and plyr.yplayer + playerh >= self.argy and plyr.yplayer + playerh <= self.argy + 40) \
                     or (
-                    plyr.xplayer >= self.argx and plyr.xplayer <= self.argx + 40 and plyr.yplayer + playerh >= self.argy and plyr.yplayer + playerh <= self.argy + 40):
+                    plyr.xplayer >= self.argx and plyr.xplayer <= self.argx + 40 and plyr.yplayer + playerh >= self.argy and plyr.yplayer + playerh <= self.argy + 40)):
                 if plyr.chainsawupgrade:
                     plyr.chinsawcount+=200
                 else:
                     plyr.chainsawupgrade = True
+                self.excicting=False
+
+
+class snakebuttonclass:
+    argx = int()
+    argy = int()
+    snake1=[]
+    snake2 = []
+    snake3 = []
+    snake4 = []
+    snakecounter=0
+    buttonexcicting = True
+    snaking = False
+    excicting = True
+    def get_arg(self, arg1, arg2):
+        self.argx = arg1
+        self.argy = arg2
+
+    def draw(self):
+        if self.buttonexcicting:
+            win.blit(snakebuttonimage, (self.argx, self.argy))
+            for plyr in [myplayer, myplayer1]:
+                if plyr.palive and((
+                        plyr.xplayer >= self.argx and plyr.xplayer <= self.argx + 40 and plyr.yplayer >= self.argy and plyr.yplayer <= self.argy + 40) \
+                        or (
+                        plyr.xplayer + playerw >= self.argx and plyr.xplayer + playerw <= self.argx + 40 and plyr.yplayer >= self.argy and plyr.yplayer <= self.argy + 40) \
+                        or (
+                        plyr.xplayer + playerw >= self.argx and plyr.xplayer + playerw <= self.argx + 40 and plyr.yplayer + playerh >= self.argy and plyr.yplayer + playerh <= self.argy + 40) \
+                        or (
+                        plyr.xplayer >= self.argx and plyr.xplayer <= self.argx + 40 and plyr.yplayer + playerh >= self.argy and plyr.yplayer + playerh <= self.argy + 40)):
+                    self.buttonexcicting=False
+                    self.snaking=True
+                    for i in range(0, 6):
+                        self.snake1.append(bullet())
+                        self.snake2.append(bullet())
+                        self.snake3.append(bullet())
+                        self.snake4.append(bullet())
+                        self.snake1[i].setposition(self.argx-100,self.argy-100)
+                        self.snake2[i].setposition(self.argx+120, self.argy-100)
+                        self.snake3[i].setposition(self.argx-100, self.argy+120)
+                        self.snake4[i].setposition(self.argx+120, self.argy+120)
+        elif self.snaking:
+            for i in range(0,5):
+                num=5-i
+                self.snake1[num].setposition(self.snake1[num-1].xbullet, self.snake1[num-1].ybullet)
+                self.snake2[num].setposition(self.snake2[num-1].xbullet, self.snake2[num-1].ybullet)
+                self.snake3[num].setposition(self.snake3[num-1].xbullet, self.snake3[num-1].ybullet)
+                self.snake4[num].setposition(self.snake4[num-1].xbullet, self.snake4[num-1].ybullet)
+                self.snake1[num].draw()
+                self.snake2[num].draw()
+                self.snake3[num].draw()
+                self.snake4[num].draw()
+            rand1 = random.randint(0, 1)
+            self.snake1[0].setposition(self.snake1[0].xbullet-20*rand1, self.snake1[0].ybullet-20*(1-rand1))
+            rand2 =random.randint(0,1)
+            self.snake2[0].setposition(self.snake2[0].xbullet+20*rand2, self.snake2[0].ybullet-20*(1-rand2))
+            rand3= random.randint(0, 1)
+            self.snake3[0].setposition(self.snake3[0].xbullet-20*rand3, self.snake3[0].ybullet+20*(1-rand3))
+            rand4 = random.randint(0, 1)
+            self.snake4[0].setposition(self.snake4[0].xbullet+20*rand4, self.snake4[0].ybullet+20*(1-rand4))
+            self.snake1[0].draw()
+            self.snake2[0].draw()
+            self.snake3[0].draw()
+            self.snake4[0].draw()
+            self.snakecounter += 1
+            if self.snakecounter==50:
                 self.excicting=False
 
 
@@ -120,8 +190,11 @@ class player:
     palive = True
     spritecondition=int()
     cone=0
-    chain = [bullet(), bullet(), bullet(), bullet()]
-    chinsawcount=500
+    chain = [bullet(), bullet(), bullet(), bullet(), bullet(), bullet()]
+    chinsawcount=400
+    orbitup=True
+    orbitdown=False
+    orbitcount=0
     def setposition(self, argx, argy):
         self.xplayer=argx
         self.yplayer=argy
@@ -137,16 +210,38 @@ class player:
             if self.spritecondition == 29:
                 self.spritecondition = 0
             if self.chainsawupgrade:
-                self.chain[0].setposition(self.xplayer+10+120*math.cos(math.radians(360-3*self.cone//2)),self.yplayer+10+120*math.sin(math.radians(360-3*self.cone//2)))
+                if self.orbitup:
+                    self.orbitcount+=1
+                    if self.orbitcount==70:
+                        self.orbitup=False
+                        self.orbitdown=True
+                if self.orbitdown:
+                    self.orbitcount-=1
+                    if self.orbitcount==0:
+                        self.orbitup=True
+                        self.orbitdown=False
+                self.chain[0].setposition(self.xplayer + 10 + (115-self.orbitcount) * math.cos(math.radians(360 - (5 * self.cone)//3)),
+                                          self.yplayer + 10 + (115-self.orbitcount) * math.sin(math.radians(360 - (5 * self.cone)//3)))
                 self.chain[0].draw()
-                self.chain[1].setposition(self.xplayer+10+80*math.cos(math.radians(self.cone+90)), self.yplayer+10+80*math.sin(math.radians(self.cone+90)))
+                self.chain[1].setposition(self.xplayer + 10 + (45+self.orbitcount) * math.cos(math.radians(self.cone)),
+                                          self.yplayer + 10 + (45+self.orbitcount) * math.sin(math.radians(self.cone)))
                 self.chain[1].draw()
-                self.chain[2].setposition(self.xplayer+10+120*math.cos(math.radians(360-(3*self.cone//2+180))), self.yplayer+10+120*math.sin(math.radians(360-(3*self.cone//2+180))))
+                self.chain[2].setposition(
+                    self.xplayer + 10 + (115-self.orbitcount) * math.cos(math.radians(360 - ((5 * self.cone)//3 + 120))),
+                    self.yplayer + 10 + (115-self.orbitcount) * math.sin(math.radians(360 - ((5 * self.cone)//3 + 120))))
                 self.chain[2].draw()
-                self.chain[3].setposition(self.xplayer+10+80*math.cos(math.radians(self.cone+270)), self.yplayer+10+80*math.sin(math.radians(self.cone+270)))
+                self.chain[3].setposition(self.xplayer + 10 + (45+self.orbitcount) * math.cos(math.radians(self.cone + 120)),
+                                          self.yplayer + 10 + (45+self.orbitcount) * math.sin(math.radians(self.cone + 120)))
                 self.chain[3].draw()
+                self.chain[4].setposition(
+                    self.xplayer + 10 + (115-self.orbitcount) * math.cos(math.radians(360 - ((5 * self.cone)//3  + 240))),
+                    self.yplayer + 10 + (115-self.orbitcount) * math.sin(math.radians(360 - ((5 * self.cone)//3 + 240))))
+                self.chain[4].draw()
+                self.chain[5].setposition(self.xplayer + 10 + (45+self.orbitcount) * math.cos(math.radians(self.cone + 240)),
+                                          self.yplayer + 10 + (45+self.orbitcount) * math.sin(math.radians(self.cone + 240)))
+                self.chain[5].draw()
                 self.cone+=4
-                if self.cone==360:
+                if self.cone == 360:
                     self.cone=0
                 self.chinsawcount-=1
                 if self.chinsawcount==0:
@@ -172,10 +267,10 @@ class deathblock:
     def draw(self):
         win.blit(dblock, (self.argx, self.argy))
         for plyr in [myplayer,myplayer1]:
-            if (plyr.xplayer>=self.argx and plyr.xplayer<=self.argx+40 and plyr.yplayer>=self.argy and plyr.yplayer<=self.argy+40) \
+            if plyr.palive and((plyr.xplayer>=self.argx and plyr.xplayer<=self.argx+40 and plyr.yplayer>=self.argy and plyr.yplayer<=self.argy+40) \
                     or (plyr.xplayer+playerw>=self.argx and plyr.xplayer+playerw<=self.argx+40 and plyr.yplayer>=self.argy and plyr.yplayer<=self.argy+40) \
                     or (plyr.xplayer + playerw >= self.argx and plyr.xplayer + playerw <= self.argx + 40 and plyr.yplayer+playerh >= self.argy and plyr.yplayer+playerh <= self.argy + 40) \
-                    or (plyr.xplayer >= self.argx and plyr.xplayer <= self.argx + 40 and plyr.yplayer+playerh >= self.argy and plyr.yplayer+playerh <= self.argy + 40):
+                    or (plyr.xplayer >= self.argx and plyr.xplayer <= self.argx + 40 and plyr.yplayer+playerh >= self.argy and plyr.yplayer+playerh <= self.argy + 40)):
                 plyr.palive = False
 
 
@@ -229,12 +324,21 @@ def DrawWindow():
             del downbulletsy[i-bulletlistsq]
             del downbullets[i-bulletlistsq]
             bulletlistsq += 1
+
     chainupsq = 0
     for chupgr in range(len(chainupgraders)):
         chainupgraders[chupgr-chainupsq].draw()
         if not chainupgraders[chupgr-chainupsq].excicting:
             del chainupgraders[chupgr-chainupsq]
-            chainupsq+=1
+            chainupsq += 1
+
+    snkbuttsq = 0
+    for snkbutt in range(len(snakebuttons)):
+        snakebuttons[snkbutt-snkbuttsq].draw()
+        if not snakebuttons[snkbutt-snkbuttsq].excicting:
+            del snakebuttons[snkbutt-snkbuttsq]
+            snkbuttsq += 1
+
 
 
     for dd in range(0,dbnumber):
@@ -289,7 +393,16 @@ while run:
     if chainupcd==0:
         chainupgraders.append(chainsawupgrader())
         chainupgraders[len(chainupgraders)-1].get_arg(random.randint(0,15)*40,random.randint(0,15)*40)
-        chainupcd = 400
+        chainupcd = 600
+
+    snakebuttoncd -=1
+    if snakebuttoncd==0:
+        if len(snakebuttons)==0:
+            snakebuttons.append(snakebuttonclass())
+        else:
+            snakebuttons[0]=snakebuttonclass()
+        snakebuttons[0].get_arg(random.randint(0,15)*40,random.randint(0,15)*40)
+        snakebuttoncd = 200
 
 
 
