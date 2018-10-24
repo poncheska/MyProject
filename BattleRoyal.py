@@ -22,7 +22,6 @@ run=True
 win=pygame.display.set_mode((winw,winh))
 pygame.display.set_caption("Doka 2")
 pygame.display.set_icon(pygame.image.load('icon.jpg'))
-
 bg=pygame.image.load('background.jpg')
 dblock=pygame.image.load('deathblock.png')
 dcount=-4000
@@ -58,10 +57,7 @@ playersprites=[pygame.image.load('player_unit1.png'),pygame.image.load('player_u
 playerh=40
 playerw=40
 pspeed=10
-movup=False
-movdown=False
-movright=False
-movleft=False
+player_destroing=[pygame.image.load('player_destroy2.png'),pygame.image.load('player_destroy3.png'),pygame.image.load('player_destroy4.png'),pygame.image.load('player_destroy5.png')]
 #upgrade
 chainupgraders=[]
 chainupcd=200
@@ -153,10 +149,10 @@ class snakebuttonclass:
                         self.snake2.append(bullet())
                         self.snake3.append(bullet())
                         self.snake4.append(bullet())
-                        self.snake1[i].setposition(self.argx-100,self.argy-100)
-                        self.snake2[i].setposition(self.argx+120, self.argy-100)
-                        self.snake3[i].setposition(self.argx-100, self.argy+120)
-                        self.snake4[i].setposition(self.argx+120, self.argy+120)
+                        self.snake1[i].setposition(self.argx+20-80,self.argy+20-80)
+                        self.snake2[i].setposition(self.argx+20+120, self.argy+20-80)
+                        self.snake3[i].setposition(self.argx+20-80, self.argy+20+100)
+                        self.snake4[i].setposition(self.argx+20+100, self.argy+20+100)
         elif self.snaking:
             for i in range(0,5):
                 num=5-i
@@ -195,6 +191,8 @@ class player:
     orbitup=True
     orbitdown=False
     orbitcount=0
+    destroycount=0
+    is_destroyed=False
     def setposition(self, argx, argy):
         self.xplayer=argx
         self.yplayer=argy
@@ -206,8 +204,8 @@ class player:
     def draw(self):
         if self.palive:
             self.spritecondition += 1
-            win.blit(playersprites[self.spritecondition // 5], (self.xplayer, self.yplayer))
-            if self.spritecondition == 29:
+            win.blit(playersprites[self.spritecondition // 3], (self.xplayer, self.yplayer))
+            if self.spritecondition == 17:
                 self.spritecondition = 0
             if self.chainsawupgrade:
                 if self.orbitup:
@@ -247,6 +245,12 @@ class player:
                 if self.chinsawcount==0:
                     self.chainsawupgrade=False
                     self.chinsawcount=400
+    def drawdestroying(self):
+        win.blit(player_destroing[self.destroycount//6],(self.xplayer-20, self.yplayer-20))
+        self.destroycount+=1
+        if self.destroycount==24:
+            self.is_destroyed=True
+
 
 
 
@@ -324,6 +328,10 @@ def DrawWindow():
             del downbulletsy[i-bulletlistsq]
             del downbullets[i-bulletlistsq]
             bulletlistsq += 1
+
+    for plyr in [myplayer, myplayer1]:
+        if not plyr.palive and not plyr.is_destroyed:
+            plyr.drawdestroying()
 
     chainupsq = 0
     for chupgr in range(len(chainupgraders)):
