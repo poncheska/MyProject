@@ -13,6 +13,8 @@ pygame.init()
 
 
 # Main Peremennie
+pygame.mixer.music.load("music.mp3")
+pygame.mixer.music.play(1)
 winw=640
 winh=640
 clock=pygame.time.Clock()
@@ -24,14 +26,34 @@ pygame.display.set_caption("Doka 2")
 pygame.display.set_icon(pygame.image.load('icon.jpg'))
 bg=pygame.image.load('background.jpg')
 dblock=pygame.image.load('deathblock.png')
-dcount=-4000
+dcount=-200
 dcount1=-1
 dcount2=0
 dblocks=[]
 dblim=0
 dbnumber=-1
-#bullet
-bulletsprite=[pygame.image.load('bullet1.png'),pygame.image.load('bullet2.png'),pygame.image.load('bullet3.png')]
+# intro
+introsprite=[pygame.image.load('intro1.jpg'),
+              pygame.image.load('intro2.jpg'),
+              pygame.image.load('intro3.jpg'),
+              pygame.image.load('intro4.jpg'),
+              pygame.image.load('intro5.jpg'),
+              pygame.image.load('intro6.jpg'),
+              pygame.image.load('intro7.jpg'),
+              pygame.image.load('intro8.jpg'),
+              pygame.image.load('intro9.jpg'),
+              pygame.image.load('intro10.jpg'),
+              pygame.image.load('intro11.jpg'),
+              pygame.image.load('intro12.jpg'),
+              pygame.image.load('intro_last.jpg'),]
+intro_fr = 3
+intro = True
+intro_counter = 0
+intro_end = False
+# bullet
+bulletsprite=[pygame.image.load('bullet1.png'),
+              pygame.image.load('bullet2.png'),
+              pygame.image.load('bullet3.png')]
 bulletlistsq=0
 bulleta=20
 bulletspeed=15
@@ -53,11 +75,19 @@ downbulletsx=[]
 downbulletsy=[]
 # player var-s
 spritecondition = 0
-playersprites=[pygame.image.load('player_unit1.png'),pygame.image.load('player_unit2.png'),pygame.image.load('player_unit3.png'),pygame.image.load('player_unit4.png'),pygame.image.load('player_unit5.png'),pygame.image.load('player_unit6.png')]
+playersprites=[pygame.image.load('player_unit1.png'),
+               pygame.image.load('player_unit2.png'),
+               pygame.image.load('player_unit3.png'),
+               pygame.image.load('player_unit4.png'),
+               pygame.image.load('player_unit5.png'),
+               pygame.image.load('player_unit6.png')]
 playerh=40
 playerw=40
 pspeed=10
-player_destroing=[pygame.image.load('player_destroy2.png'),pygame.image.load('player_destroy3.png'),pygame.image.load('player_destroy4.png'),pygame.image.load('player_destroy5.png')]
+player_destroing=[pygame.image.load('player_destroy2.png'),
+                  pygame.image.load('player_destroy3.png'),
+                  pygame.image.load('player_destroy4.png'),
+                  pygame.image.load('player_destroy5.png')]
 #upgrade
 chainupgraders=[]
 chainupcd=200
@@ -65,6 +95,9 @@ chainsawupimage=pygame.image.load('chainsawupgrade.png')
 snakebuttonimage=pygame.image.load('snakebutton.png')
 snakebuttons=[]
 snakebuttoncd=100
+armageddonimage=pygame.image.load('armageddon.png')
+armageddons=[]
+armageddoncd=200
 
 class bullet:
     spritecondition=0
@@ -86,6 +119,115 @@ class bullet:
                     or (plyr.xplayer >= self.xbullet and plyr.xplayer <= self.xbullet + 20 and plyr.yplayer + playerh//2 >= self.ybullet and plyr.yplayer + playerh//2 <= self.ybullet + 20) \
                     or (plyr.xplayer +playerw//2 >= self.xbullet and plyr.xplayer +playerw//2 <= self.xbullet + 20 and plyr.yplayer >= self.ybullet and plyr.yplayer <= self.ybullet + 20)):
                 plyr.palive = False
+
+
+class armageddon:
+    argx = int()
+    argy = int()
+    excicting=True
+    doing=False
+    upper_bullet_list=[]
+    right_bullet_list=[]
+    lower_bullet_list=[]
+    left_bullet_list=[]
+    bullet_count=0
+    type_of_bullet=None
+    bullet_spawn_cd=0
+
+    def get_arg(self, arg1, arg2):
+        self.argx = arg1
+        self.argy = arg2
+
+    def draw(self):
+        global armageddoncd
+        if self.excicting and not self.doing:
+            win.blit(armageddonimage, (self.argx, self.argy))
+            for plyr in [myplayer, myplayer1]:
+                if plyr.palive and((
+                                           plyr.xplayer >= self.argx and plyr.xplayer <= self.argx + 40 and plyr.yplayer >= self.argy and plyr.yplayer <= self.argy + 40) \
+                                   or (
+                                           plyr.xplayer + playerw >= self.argx and plyr.xplayer + playerw <= self.argx + 40 and plyr.yplayer >= self.argy and plyr.yplayer <= self.argy + 40) \
+                                   or (
+                                           plyr.xplayer + playerw >= self.argx and plyr.xplayer + playerw <= self.argx + 40 and plyr.yplayer + playerh >= self.argy and plyr.yplayer + playerh <= self.argy + 40) \
+                                   or (
+                                           plyr.xplayer >= self.argx and plyr.xplayer <= self.argx + 40 and plyr.yplayer + playerh >= self.argy and plyr.yplayer + playerh <= self.argy + 40)):
+                    self.doing = True
+                    armageddoncd=600
+        elif self.doing:
+            if self.bullet_spawn_cd == 0:
+                self.type_of_bullet=random.randint(1,4)
+                if self.type_of_bullet==1:
+                    self.upper_bullet_list.append(bullet())
+                    self.upper_bullet_list[len(self.upper_bullet_list) - 1].setposition(random.randint(0,15)*40+10, -30)
+                elif self.type_of_bullet==2:
+                    self.right_bullet_list.append(bullet())
+                    self.right_bullet_list[len(self.right_bullet_list) - 1].setposition(670, random.randint(0,15)*40+10)
+                elif self.type_of_bullet==3:
+                    self.lower_bullet_list.append(bullet())
+                    self.lower_bullet_list[len(self.lower_bullet_list) - 1].setposition(random.randint(0,15)*40+10, 670)
+                elif self.type_of_bullet==4:
+                    self.left_bullet_list.append(bullet())
+                    self.left_bullet_list[len(self.left_bullet_list) - 1].setposition(-30, random.randint(0,15)*40+10)
+                self.bullet_spawn_cd=random.randint(1,40)
+            self.bullet_spawn_cd -=1
+
+            i_len=len(self.upper_bullet_list)
+            for i in range(i_len):
+                j=i_len - 1 - i
+                self.upper_bullet_list[j].draw()
+                if self.upper_bullet_list[j].ybullet > 640:
+                    del self.upper_bullet_list[j]
+                else:
+                    self.upper_bullet_list[j].setposition(self.upper_bullet_list[j].xbullet, self.upper_bullet_list[j].ybullet + 10)
+
+            i_len=len(self.right_bullet_list)
+            for i in range(i_len):
+                j=i_len - 1 - i
+                self.right_bullet_list[j].draw()
+                if self.right_bullet_list[j].xbullet < -40:
+                    del self.right_bullet_list[j]
+                else:
+                    self.right_bullet_list[j].setposition(self.right_bullet_list[j].xbullet-10, self.right_bullet_list[j].ybullet)
+
+            i_len=len(self.lower_bullet_list)
+            for i in range(i_len):
+                j=i_len - 1 - i
+                self.lower_bullet_list[j].draw()
+                if self.lower_bullet_list[j].ybullet < -40:
+                    del self.lower_bullet_list[j]
+                else:
+                    self.lower_bullet_list[j].setposition(self.lower_bullet_list[j].xbullet, self.lower_bullet_list[j].ybullet - 10)
+
+            i_len=len(self.left_bullet_list)
+            for i in range(i_len):
+                j=i_len - 1 - i
+                self.left_bullet_list[j].draw()
+                if self.left_bullet_list[j].ybullet > 640:
+                    del self.left_bullet_list[j]
+                else:
+                    self.left_bullet_list[j].setposition(self.left_bullet_list[j].xbullet+10, self.left_bullet_list[j].ybullet)
+    def clear(self):
+        i_len=len(self.upper_bullet_list)
+        for i in range(i_len):
+            j=i_len - 1 - i
+            del self.upper_bullet_list[j]
+
+        i_len=len(self.right_bullet_list)
+        for i in range(i_len):
+            j=i_len - 1 - i
+            del self.right_bullet_list[j]
+
+        i_len=len(self.lower_bullet_list)
+        for i in range(i_len):
+            j=i_len - 1 - i
+            del self.lower_bullet_list[j]
+
+
+        i_len=len(self.left_bullet_list)
+        for i in range(i_len):
+            j=i_len - 1 - i
+            del self.left_bullet_list[j]
+
 
 
 class chainsawupgrader:
@@ -118,7 +260,7 @@ class chainsawupgrader:
 class snakebuttonclass:
     argx = int()
     argy = int()
-    snake1=[]
+    snake1 = []
     snake2 = []
     snake3 = []
     snake4 = []
@@ -179,6 +321,8 @@ class snakebuttonclass:
             self.snakecounter += 1
             if self.snakecounter==50:
                 self.excicting=False
+    def clear(self):
+        del self
 
 
 class player:
@@ -285,6 +429,7 @@ class deathblock:
 def DrawWindow():
     win.blit(bg, (0, 0))
     global bulletlistsq
+    global snakebuttons
 
     myplayer.draw()
     myplayer1.draw()
@@ -344,8 +489,15 @@ def DrawWindow():
     for snkbutt in range(len(snakebuttons)):
         snakebuttons[snkbutt-snkbuttsq].draw()
         if not snakebuttons[snkbutt-snkbuttsq].excicting:
-            del snakebuttons[snkbutt-snkbuttsq]
+            for i in range(snkbutt-snkbuttsq,len(snakebuttons)-1):
+                snakebuttons[i].clear()
+                snakebuttons[i]=snakebuttons[i+1]
+            snakebuttons[len(snakebuttons)-1].clear()
+            del snakebuttons[len(snakebuttons)-1]
             snkbuttsq += 1
+
+    if len(armageddons) == 1:
+        armageddons[0].draw()
 
 
 
@@ -354,9 +506,34 @@ def DrawWindow():
 
     pygame.display.update()
 
+# intro cycle
 
+while intro:
+    clock.tick(100)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+            intro = False
+    win.blit(introsprite[intro_counter//intro_fr], (0, 0))
+    pygame.display.update()
+    if intro_end:
+        keys=pygame.key.get_pressed()
+        if keys[pygame.K_f]:
+            intro = False
+    else:
+        if intro_counter > 12*intro_fr:
+            win.blit(introsprite[12], (0, 0))
+            pygame.display.update()
+            intro_end = True
+
+        else:
+            win.blit(introsprite[intro_counter//intro_fr], (0, 0))
+            pygame.display.update()
+            intro_counter += 1
+    pygame.time.delay(15)
 
 #main cycle
+
 while run:
     clock.tick(100)
     for event in pygame.event.get():
@@ -364,7 +541,7 @@ while run:
             run=False
 
     dcount+=1
-    if dcount==5 and dcount2<16 and dbnumber<256:
+    if dcount==20 and dcount2<16 and dbnumber<256:
         dcount=0
         dcount1+=1
         if dcount1==15-2*dblim:
@@ -405,12 +582,21 @@ while run:
 
     snakebuttoncd -=1
     if snakebuttoncd==0:
-        if len(snakebuttons)==0:
-            snakebuttons.append(snakebuttonclass())
-        else:
-            snakebuttons[0]=snakebuttonclass()
-        snakebuttons[0].get_arg(random.randint(0,15)*40,random.randint(0,15)*40)
-        snakebuttoncd = 200
+        if len(snakebuttons) > 0:
+            snakebuttons = []
+        snakebuttons.append(snakebuttonclass())
+        snakebuttons[len(snakebuttons)-1].get_arg(random.randint(0,15)*40,random.randint(0,15)*40)
+        snakebuttoncd = 400
+
+    armageddoncd -=1
+    if armageddoncd==0:
+        armageddons.append(armageddon())
+        armageddons[0].get_arg(random.randint(0,15)*40,random.randint(0,15)*40)
+        armageddoncd=500
+    elif armageddoncd==100 and len(armageddons)!=0:
+        armageddons[0].clear()
+        del armageddons[0]
+
 
 
 
