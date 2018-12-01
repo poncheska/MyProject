@@ -13,8 +13,8 @@ pygame.init()
 
 
 # Main Peremennie
-pygame.mixer.music.load("music.mp3")
-pygame.mixer.music.play(1)
+pygame.mixer.music.load("music1.mp3")
+pygame.mixer.music.play(10)
 winw=640
 winh=640
 clock=pygame.time.Clock()
@@ -26,12 +26,20 @@ pygame.display.set_caption("Doka 2")
 pygame.display.set_icon(pygame.image.load('icon.jpg'))
 bg=pygame.image.load('background.jpg')
 dblock=pygame.image.load('deathblock.png')
-dcount=-200
-dcount1=-1
-dcount2=0
+dcount= -200
+dcount1= -1
+dcount2= 0
 dblocks=[]
 dblim=0
 dbnumber=-1
+#egg
+eggruncnt = 0
+egg = False
+eggactive = False
+eastereggimage = pygame.image.load('easter_egg.png')
+eggcounter = 0
+eggspritecnt = 0
+eggbg = pygame.image.load('egg_bg.jpg')
 # intro
 introsprite=[pygame.image.load('intro1.jpg'),
               pygame.image.load('intro2.jpg'),
@@ -45,15 +53,12 @@ introsprite=[pygame.image.load('intro1.jpg'),
               pygame.image.load('intro10.jpg'),
               pygame.image.load('intro11.jpg'),
               pygame.image.load('intro12.jpg'),
-              pygame.image.load('intro_last.jpg'),]
-intro_fr = 3
+              pygame.image.load('intro_last.jpg')]
+intro_fr = 10
 intro = True
 intro_counter = 0
 intro_end = False
 # bullet
-bulletsprite=[pygame.image.load('bullet1.png'),
-              pygame.image.load('bullet2.png'),
-              pygame.image.load('bullet3.png')]
 bulletlistsq=0
 bulleta=20
 bulletspeed=15
@@ -84,6 +89,7 @@ playersprites=[pygame.image.load('player_unit1.png'),
 playerh=40
 playerw=40
 pspeed=10
+players=[]
 player_destroing=[pygame.image.load('player_destroy2.png'),
                   pygame.image.load('player_destroy3.png'),
                   pygame.image.load('player_destroy4.png'),
@@ -95,12 +101,17 @@ chainsawupimage=pygame.image.load('chainsawupgrade.png')
 snakebuttonimage=pygame.image.load('snakebutton.png')
 snakebuttons=[]
 snakebuttoncd=100
-armageddonimage=pygame.image.load('armageddon.png')
 armageddons=[]
 armageddoncd=200
 
 class bullet:
-    spritecondition=0
+    def __init__(self, xbullet, ybullet):
+        self.spritecondition = 0
+        self.bulletsprite = [pygame.image.load('bullet1.png'),
+                             pygame.image.load('bullet2.png'),
+                             pygame.image.load('bullet3.png')]
+        self.xbullet = xbullet
+        self.ybullet = ybullet
     def setposition(self, arg1, arg2):
         self.xbullet=arg1
         self.ybullet=arg2
@@ -108,40 +119,38 @@ class bullet:
         self.spritecondition+=1
         if self.spritecondition==3:
             self.spritecondition=0
-        win.blit(bulletsprite[self.spritecondition], (self.xbullet, self.ybullet))
-        for plyr in [myplayer,myplayer1]:
-            if plyr.palive and((plyr.xplayer>=self.xbullet and plyr.xplayer<=self.xbullet+20 and plyr.yplayer>=self.ybullet and plyr.yplayer<=self.ybullet+20) \
-                    or (plyr.xplayer+playerw>=self.xbullet and plyr.xplayer+playerw<=self.xbullet+20 and plyr.yplayer>=self.ybullet and plyr.yplayer<=self.ybullet+20) \
-                    or (plyr.xplayer + playerw >= self.xbullet and plyr.xplayer + playerw <= self.xbullet + 20 and plyr.yplayer+playerh >= self.ybullet and plyr.yplayer+playerh <= self.ybullet + 20) \
-                    or (plyr.xplayer >= self.xbullet and plyr.xplayer <= self.xbullet + 20 and plyr.yplayer+playerh >= self.ybullet and plyr.yplayer+playerh <= self.ybullet + 20) \
-                    or (plyr.xplayer + playerw//2 >= self.xbullet and plyr.xplayer + playerw//2 <= self.xbullet + 20 and plyr.yplayer + playerh >= self.ybullet and plyr.yplayer + playerh <= self.ybullet + 20) \
-                    or (plyr.xplayer + playerw >= self.xbullet and plyr.xplayer + playerw <= self.xbullet + 20 and plyr.yplayer + playerh//2  >= self.ybullet and plyr.yplayer + playerh//2  <= self.ybullet + 20) \
-                    or (plyr.xplayer >= self.xbullet and plyr.xplayer <= self.xbullet + 20 and plyr.yplayer + playerh//2 >= self.ybullet and plyr.yplayer + playerh//2 <= self.ybullet + 20) \
-                    or (plyr.xplayer +playerw//2 >= self.xbullet and plyr.xplayer +playerw//2 <= self.xbullet + 20 and plyr.yplayer >= self.ybullet and plyr.yplayer <= self.ybullet + 20)):
+        win.blit(self.bulletsprite[self.spritecondition], (self.xbullet, self.ybullet))
+        for plyr in [myplayer, myplayer1]:
+            if plyr.palive and((plyr.xplayer>=self.xbullet <= plyr.xplayer<=self.xbullet+20 and self.ybullet <= plyr.yplayer<=self.ybullet+20)
+                    or (self.xbullet <= plyr.xplayer+playerw<=self.xbullet+20 and plyr.yplayer>=self.ybullet <= plyr.yplayer<=self.ybullet+20)
+                    or (self.xbullet <= plyr.xplayer + playerw <= self.xbullet + 20 and self.ybullet <= plyr.yplayer+playerh <= self.ybullet + 20)
+                    or (self.xbullet <= plyr.xplayer <= self.xbullet + 20 and self.ybullet <= plyr.yplayer+playerh <= self.ybullet + 20)
+                    or (self.xbullet <= plyr.xplayer + playerw//2 <= self.xbullet + 20 and self.ybullet <= plyr.yplayer + playerh <= self.ybullet + 20)
+                    or (self.xbullet <= plyr.xplayer + playerw <= self.xbullet + 20 and self.ybullet <= plyr.yplayer + playerh//2  <= self.ybullet + 20)
+                    or (self.xbullet <= plyr.xplayer <= self.xbullet + 20 and self.ybullet <= plyr.yplayer + playerh//2 <= self.ybullet + 20)
+                    or (self.xbullet <= plyr.xplayer +playerw//2 <= self.xbullet + 20 and self.ybullet <= plyr.yplayer <= self.ybullet + 20)):
                 plyr.palive = False
 
 
 class armageddon:
-    argx = int()
-    argy = int()
-    excicting=True
-    doing=False
-    upper_bullet_list=[]
-    right_bullet_list=[]
-    lower_bullet_list=[]
-    left_bullet_list=[]
-    bullet_count=0
-    type_of_bullet=None
-    bullet_spawn_cd=0
-
-    def get_arg(self, arg1, arg2):
-        self.argx = arg1
-        self.argy = arg2
+    def __init__(self, argx, argy):
+        self.armageddonimage = pygame.image.load('armageddon.png')
+        self.argx = argx
+        self.argy = argy
+        self.excicting = True
+        self.doing = False
+        self.upper_bullet_list=[]
+        self.right_bullet_list=[]
+        self.lower_bullet_list=[]
+        self.left_bullet_list=[]
+        self.bullet_count=0
+        self.type_of_bullet=None
+        self.bullet_spawn_cd=0
 
     def draw(self):
         global armageddoncd
         if self.excicting and not self.doing:
-            win.blit(armageddonimage, (self.argx, self.argy))
+            win.blit(self.armageddonimage, (self.argx, self.argy))
             for plyr in [myplayer, myplayer1]:
                 if plyr.palive and((
                                            plyr.xplayer >= self.argx and plyr.xplayer <= self.argx + 40 and plyr.yplayer >= self.argy and plyr.yplayer <= self.argy + 40) \
@@ -157,17 +166,13 @@ class armageddon:
             if self.bullet_spawn_cd == 0:
                 self.type_of_bullet=random.randint(1,4)
                 if self.type_of_bullet==1:
-                    self.upper_bullet_list.append(bullet())
-                    self.upper_bullet_list[len(self.upper_bullet_list) - 1].setposition(random.randint(0,15)*40+10, -30)
+                    self.upper_bullet_list.append(bullet(random.randint(0,15)*40+10, -30))
                 elif self.type_of_bullet==2:
-                    self.right_bullet_list.append(bullet())
-                    self.right_bullet_list[len(self.right_bullet_list) - 1].setposition(670, random.randint(0,15)*40+10)
+                    self.right_bullet_list.append(bullet(670, random.randint(0,15)*40+10))
                 elif self.type_of_bullet==3:
-                    self.lower_bullet_list.append(bullet())
-                    self.lower_bullet_list[len(self.lower_bullet_list) - 1].setposition(random.randint(0,15)*40+10, 670)
+                    self.lower_bullet_list.append(bullet(random.randint(0,15)*40+10, 670))
                 elif self.type_of_bullet==4:
-                    self.left_bullet_list.append(bullet())
-                    self.left_bullet_list[len(self.left_bullet_list) - 1].setposition(-30, random.randint(0,15)*40+10)
+                    self.left_bullet_list.append(bullet(-30, random.randint(0,15)*40+10))
                 self.bullet_spawn_cd=random.randint(1,40)
             self.bullet_spawn_cd -=1
 
@@ -243,11 +248,11 @@ class chainsawupgrader:
         win.blit(chainsawupimage, (self.argx, self.argy))
         for plyr in [myplayer, myplayer1]:
             if plyr.palive and((
-                    plyr.xplayer >= self.argx and plyr.xplayer <= self.argx + 40 and plyr.yplayer >= self.argy and plyr.yplayer <= self.argy + 40) \
+                    plyr.xplayer >= self.argx and plyr.xplayer <= self.argx + 40 and plyr.yplayer >= self.argy and plyr.yplayer <= self.argy + 40)
                     or (
-                    plyr.xplayer + playerw >= self.argx and plyr.xplayer + playerw <= self.argx + 40 and plyr.yplayer >= self.argy and plyr.yplayer <= self.argy + 40) \
+                    plyr.xplayer + playerw >= self.argx and plyr.xplayer + playerw <= self.argx + 40 and plyr.yplayer >= self.argy and plyr.yplayer <= self.argy + 40)
                     or (
-                    plyr.xplayer + playerw >= self.argx and plyr.xplayer + playerw <= self.argx + 40 and plyr.yplayer + playerh >= self.argy and plyr.yplayer + playerh <= self.argy + 40) \
+                    plyr.xplayer + playerw >= self.argx and plyr.xplayer + playerw <= self.argx + 40 and plyr.yplayer + playerh >= self.argy and plyr.yplayer + playerh <= self.argy + 40)
                     or (
                     plyr.xplayer >= self.argx and plyr.xplayer <= self.argx + 40 and plyr.yplayer + playerh >= self.argy and plyr.yplayer + playerh <= self.argy + 40)):
                 if plyr.chainsawupgrade:
@@ -287,14 +292,10 @@ class snakebuttonclass:
                     self.buttonexcicting=False
                     self.snaking=True
                     for i in range(0, 6):
-                        self.snake1.append(bullet())
-                        self.snake2.append(bullet())
-                        self.snake3.append(bullet())
-                        self.snake4.append(bullet())
-                        self.snake1[i].setposition(self.argx+20-80,self.argy+20-80)
-                        self.snake2[i].setposition(self.argx+20+120, self.argy+20-80)
-                        self.snake3[i].setposition(self.argx+20-80, self.argy+20+100)
-                        self.snake4[i].setposition(self.argx+20+100, self.argy+20+100)
+                        self.snake1.append(bullet(self.argx+20-80,self.argy+20-80))
+                        self.snake2.append(bullet(self.argx+20+120, self.argy+20-80))
+                        self.snake3.append(bullet(self.argx+20-80, self.argy+20+100))
+                        self.snake4.append(bullet(self.argx+20+100, self.argy+20+100))
         elif self.snaking:
             for i in range(0,5):
                 num=5-i
@@ -326,17 +327,20 @@ class snakebuttonclass:
 
 
 class player:
-    chainsawupgrade = False
-    palive = True
-    spritecondition=int()
-    cone=0
-    chain = [bullet(), bullet(), bullet(), bullet(), bullet(), bullet()]
-    chinsawcount=400
-    orbitup=True
-    orbitdown=False
-    orbitcount=0
-    destroycount=0
-    is_destroyed=False
+    def __init__(self):
+        self.chain = [bullet(-30, -30), bullet(-30, -30),
+                      bullet(-30, -30), bullet(-30, -30),
+                      bullet(-30, -30), bullet(-30, -30)]
+        self.chainsawupgrade = False
+        self.palive = True
+        self.spritecondition=int()
+        self.cone=0
+        self.chinsawcount=400
+        self.orbitup=True
+        self.orbitdown=False
+        self.orbitcount=0
+        self.destroycount=0
+        self.is_destroyed=False
     def setposition(self, argx, argy):
         self.xplayer=argx
         self.yplayer=argy
@@ -364,24 +368,20 @@ class player:
                         self.orbitdown=False
                 self.chain[0].setposition(self.xplayer + 10 + (115-self.orbitcount) * math.cos(math.radians(360 - (5 * self.cone)//3)),
                                           self.yplayer + 10 + (115-self.orbitcount) * math.sin(math.radians(360 - (5 * self.cone)//3)))
-                self.chain[0].draw()
                 self.chain[1].setposition(self.xplayer + 10 + (45+self.orbitcount) * math.cos(math.radians(self.cone)),
                                           self.yplayer + 10 + (45+self.orbitcount) * math.sin(math.radians(self.cone)))
-                self.chain[1].draw()
                 self.chain[2].setposition(
                     self.xplayer + 10 + (115-self.orbitcount) * math.cos(math.radians(360 - ((5 * self.cone)//3 + 120))),
                     self.yplayer + 10 + (115-self.orbitcount) * math.sin(math.radians(360 - ((5 * self.cone)//3 + 120))))
-                self.chain[2].draw()
                 self.chain[3].setposition(self.xplayer + 10 + (45+self.orbitcount) * math.cos(math.radians(self.cone + 120)),
                                           self.yplayer + 10 + (45+self.orbitcount) * math.sin(math.radians(self.cone + 120)))
-                self.chain[3].draw()
                 self.chain[4].setposition(
                     self.xplayer + 10 + (115-self.orbitcount) * math.cos(math.radians(360 - ((5 * self.cone)//3  + 240))),
                     self.yplayer + 10 + (115-self.orbitcount) * math.sin(math.radians(360 - ((5 * self.cone)//3 + 240))))
-                self.chain[4].draw()
                 self.chain[5].setposition(self.xplayer + 10 + (45+self.orbitcount) * math.cos(math.radians(self.cone + 240)),
                                           self.yplayer + 10 + (45+self.orbitcount) * math.sin(math.radians(self.cone + 240)))
-                self.chain[5].draw()
+                for i in self.chain:
+                    i.draw()
                 self.cone+=4
                 if self.cone == 360:
                     self.cone=0
@@ -406,8 +406,10 @@ myplayer1.setposition(600,600)
 
 
 class deathblock:
-    argx = int()
-    argy = int()
+    def __init__(self, argx, argy):
+        self.argx = argx
+        self.argy = argy
+        self.args = True
     def get_arg(self , arg1, arg2):
         self.argx=arg1
         self.argy=arg2
@@ -514,12 +516,21 @@ while intro:
         if event.type == pygame.QUIT:
             run = False
             intro = False
+            egg = False
     win.blit(introsprite[intro_counter//intro_fr], (0, 0))
     pygame.display.update()
     if intro_end:
-        keys=pygame.key.get_pressed()
+        eggcounter += 1
+        keys = pygame.key.get_pressed()
+        if eggcounter == 1000:
+            intro = False
+            egg = True
+            pygame.mixer.music.load("egg1.mp3")
+            pygame.mixer.music.play(1)
         if keys[pygame.K_f]:
             intro = False
+            pygame.mixer.music.load("music.mp3")
+            pygame.mixer.music.play(1)
     else:
         if intro_counter > 12*intro_fr:
             win.blit(introsprite[12], (0, 0))
@@ -533,6 +544,28 @@ while intro:
     pygame.time.delay(15)
 
 #main cycle
+while egg:
+    clock.tick(100)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+            egg = False
+    if not eggactive:
+        win.blit(introsprite[11], (0, 0))
+        win.blit(eastereggimage, (-640 + eggspritecnt*5, 320))
+        pygame.display.update()
+        if eggspritecnt<128:
+            eggspritecnt += 1
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_F5]:
+            eggactive = True
+    else:
+        win.blit(eggbg, (eggruncnt*2, 0))
+        pygame.display.update()
+        eggruncnt -= 1
+        if eggruncnt == -21:
+            eggruncnt = 0
+
 
 while run:
     clock.tick(100)
@@ -549,30 +582,22 @@ while run:
             dcount2+=1
             dcount1=0
             dbnumber += 1
-            dblocks.append(deathblock())
-            dblocks[dbnumber].get_arg((dblim + dcount1) * 40, dcount2 * 40)
+            dblocks.append(deathblock((dblim + dcount1) * 40, dcount2 * 40))
             dbnumber += 1
-            dblocks.append(deathblock())
-            dblocks[dbnumber].get_arg(600 - (dblim + dcount1) * 40, 600 - dcount2 * 40)
+            dblocks.append(deathblock(600 - (dblim + dcount1) * 40, 600 - dcount2 * 40))
             dbnumber += 1
-            dblocks.append(deathblock())
-            dblocks[dbnumber].get_arg(600 - dcount2 * 40, (dblim + dcount1) * 40)
+            dblocks.append(deathblock(600 - dcount2 * 40, (dblim + dcount1) * 40))
             dbnumber += 1
-            dblocks.append(deathblock())
-            dblocks[dbnumber].get_arg(dcount2 * 40, 600 - (dblim + dcount1) * 40)
+            dblocks.append(deathblock(dcount2 * 40, 600 - (dblim + dcount1) * 40))
         else:
             dbnumber += 1
-            dblocks.append(deathblock())
-            dblocks[dbnumber].get_arg((dblim+dcount1)*40, dcount2*40)
+            dblocks.append(deathblock((dblim+dcount1)*40, dcount2*40))
             dbnumber += 1
-            dblocks.append(deathblock())
-            dblocks[dbnumber].get_arg(600-(dblim+dcount1)*40, 600-dcount2*40)
+            dblocks.append(deathblock(600-(dblim+dcount1)*40, 600-dcount2*40))
             dbnumber += 1
-            dblocks.append(deathblock())
-            dblocks[dbnumber].get_arg(600-dcount2*40, (dblim+dcount1)*40)
+            dblocks.append(deathblock(600-dcount2*40, (dblim+dcount1)*40))
             dbnumber += 1
-            dblocks.append(deathblock())
-            dblocks[dbnumber].get_arg(dcount2*40, 600-(dblim+dcount1)*40)
+            dblocks.append(deathblock(dcount2*40, 600-(dblim+dcount1)*40))
 
     chainupcd-=1
     if chainupcd==0:
@@ -590,8 +615,7 @@ while run:
 
     armageddoncd -=1
     if armageddoncd==0:
-        armageddons.append(armageddon())
-        armageddons[0].get_arg(random.randint(0,15)*40,random.randint(0,15)*40)
+        armageddons.append(armageddon(random.randint(0,15)*40,random.randint(0,15)*40))
         armageddoncd=500
     elif armageddoncd==100 and len(armageddons)!=0:
         armageddons[0].clear()
@@ -629,19 +653,19 @@ while run:
             shootcd=0
             shootcdb=False
             if keys[pygame.K_t]:
-                upbullets.append(bullet())
+                upbullets.append(bullet(myplayer.xplayer+(playerw-bulleta)//2, myplayer.yplayer-bulleta-1))
                 upbulletsx.append(myplayer.xplayer+(playerw-bulleta)//2)
                 upbulletsy.append(myplayer.yplayer-bulleta-1)
             elif keys[pygame.K_g]:
-                downbullets.append(bullet())
+                downbullets.append(bullet(myplayer.xplayer+(playerw-bulleta)//2, myplayer.yplayer+playerh+1))
                 downbulletsx.append(myplayer.xplayer+(playerw-bulleta)//2)
                 downbulletsy.append(myplayer.yplayer+playerh+1)
             elif keys[pygame.K_h]:
-                rightbullets.append(bullet())
+                rightbullets.append(bullet(myplayer.xplayer+playerw+1, myplayer.yplayer+(playerh-bulleta)//2))
                 rightbulletsx.append(myplayer.xplayer+playerw+1)
                 rightbulletsy.append(myplayer.yplayer+(playerh-bulleta)//2)
             elif keys[pygame.K_f]:
-                leftbullets.append(bullet())
+                leftbullets.append(bullet(myplayer.xplayer-bulleta-1, myplayer.yplayer+(playerh-bulleta)//2))
                 leftbulletsx.append(myplayer.xplayer-bulleta-1)
                 leftbulletsy.append(myplayer.yplayer+(playerh-bulleta)//2)
 
@@ -675,19 +699,19 @@ while run:
             shootcd1=0
             shootcdb1=False
             if keys[pygame.K_KP8]:
-                upbullets.append(bullet())
+                upbullets.append(bullet(myplayer1.xplayer+(playerw-bulleta)//2, myplayer1.yplayer-bulleta-1))
                 upbulletsx.append(myplayer1.xplayer+(playerw-bulleta)//2)
                 upbulletsy.append(myplayer1.yplayer-bulleta-1)
             elif keys[pygame.K_KP5]:
-                downbullets.append(bullet())
+                downbullets.append(bullet(myplayer1.xplayer+(playerw-bulleta)//2, myplayer1.yplayer+playerh+1))
                 downbulletsx.append(myplayer1.xplayer+(playerw-bulleta)//2)
                 downbulletsy.append(myplayer1.yplayer+playerh+1)
             elif keys[pygame.K_KP6]:
-                rightbullets.append(bullet())
+                rightbullets.append(bullet(myplayer1.xplayer+playerw+1, myplayer1.yplayer+(playerh-bulleta)//2))
                 rightbulletsx.append(myplayer1.xplayer+playerw+1)
                 rightbulletsy.append(myplayer1.yplayer+(playerh-bulleta)//2)
             elif keys[pygame.K_KP4]:
-                leftbullets.append(bullet())
+                leftbullets.append(bullet(myplayer1.xplayer-bulleta-1, myplayer1.yplayer+(playerh-bulleta)//2))
                 leftbulletsx.append(myplayer1.xplayer-bulleta-1)
                 leftbulletsy.append(myplayer1.yplayer+(playerh-bulleta)//2)
     pygame.time.delay(15)
