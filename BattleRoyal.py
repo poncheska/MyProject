@@ -33,6 +33,8 @@ dblocks=[]
 dblim=0
 dbnumber=-1
 #egg
+arthaskillcd = 400
+arthaslive = 4
 eggruncnt = 0
 egg = False
 eggactive = False
@@ -54,11 +56,11 @@ introsprite=[pygame.image.load('intro1.jpg'),
               pygame.image.load('intro11.jpg'),
               pygame.image.load('intro12.jpg'),
               pygame.image.load('intro_last.jpg')]
-intro_fr = 10
+intro_fr = 7
 intro = True
 intro_counter = 0
 intro_end = False
-# bullet
+# bulletff
 bulletlistsq=0
 bulleta=20
 bulletspeed=15
@@ -89,7 +91,7 @@ playersprites=[pygame.image.load('player_unit1.png'),
 playerh=40
 playerw=40
 pspeed=10
-players=[]
+players = []
 player_destroing=[pygame.image.load('player_destroy2.png'),
                   pygame.image.load('player_destroy3.png'),
                   pygame.image.load('player_destroy4.png'),
@@ -120,7 +122,7 @@ class bullet:
         if self.spritecondition==3:
             self.spritecondition=0
         win.blit(self.bulletsprite[self.spritecondition], (self.xbullet, self.ybullet))
-        for plyr in [myplayer, myplayer1]:
+        for plyr in players:
             if plyr.palive and((plyr.xplayer>=self.xbullet <= plyr.xplayer<=self.xbullet+20 and self.ybullet <= plyr.yplayer<=self.ybullet+20)
                     or (self.xbullet <= plyr.xplayer+playerw<=self.xbullet+20 and plyr.yplayer>=self.ybullet <= plyr.yplayer<=self.ybullet+20)
                     or (self.xbullet <= plyr.xplayer + playerw <= self.xbullet + 20 and self.ybullet <= plyr.yplayer+playerh <= self.ybullet + 20)
@@ -246,7 +248,7 @@ class chainsawupgrader:
 
     def draw(self):
         win.blit(chainsawupimage, (self.argx, self.argy))
-        for plyr in [myplayer, myplayer1]:
+        for plyr in players:
             if plyr.palive and((
                     plyr.xplayer >= self.argx and plyr.xplayer <= self.argx + 40 and plyr.yplayer >= self.argy and plyr.yplayer <= self.argy + 40)
                     or (
@@ -327,7 +329,7 @@ class snakebuttonclass:
 
 
 class player:
-    def __init__(self):
+    def __init__(self, argx, argy):
         self.chain = [bullet(-30, -30), bullet(-30, -30),
                       bullet(-30, -30), bullet(-30, -30),
                       bullet(-30, -30), bullet(-30, -30)]
@@ -341,6 +343,8 @@ class player:
         self.orbitcount=0
         self.destroycount=0
         self.is_destroyed=False
+        self.xplayer=argx
+        self.yplayer=argy
     def setposition(self, argx, argy):
         self.xplayer=argx
         self.yplayer=argy
@@ -398,11 +402,10 @@ class player:
 
 
 
-myplayer=player()
-myplayer.setposition(0, 0)
-myplayer1=player()
-myplayer1.setposition(600,600)
-
+myplayer=player(0, 0)
+myplayer1=player(600,600)
+players.append(myplayer)
+players.append(myplayer1)
 
 
 class deathblock:
@@ -416,7 +419,7 @@ class deathblock:
         self.args=True
     def draw(self):
         win.blit(dblock, (self.argx, self.argy))
-        for plyr in [myplayer,myplayer1]:
+        for plyr in players:
             if plyr.palive and((plyr.xplayer>=self.argx and plyr.xplayer<=self.argx+40 and plyr.yplayer>=self.argy and plyr.yplayer<=self.argy+40) \
                     or (plyr.xplayer+playerw>=self.argx and plyr.xplayer+playerw<=self.argx+40 and plyr.yplayer>=self.argy and plyr.yplayer<=self.argy+40) \
                     or (plyr.xplayer + playerw >= self.argx and plyr.xplayer + playerw <= self.argx + 40 and plyr.yplayer+playerh >= self.argy and plyr.yplayer+playerh <= self.argy + 40) \
@@ -424,10 +427,121 @@ class deathblock:
                 plyr.palive = False
 
 
+class ArtasDestroyer:
+    def __init__(self, x, y):
+        self.argx = x
+        self.argy = y
+        self.sprite = [pygame.image.load('artkill1.png'),
+                       pygame.image.load('artkill2.png'),
+                       pygame.image.load('artkill3.png'),
+                       pygame.image.load('artkill4.png')]
+        self.spritecount = 0
+        self.exciting = True
+
+    def draw(self):
+        win.blit(self.sprite[self.spritecount//5], (self.argx, self.argy))
+        self.spritecount += 1
+        if self.spritecount == 20:
+            self.spritecount = 0
+        self.argx -= 5
+        if self.argx < -80:
+            self.exciting = False
+        if eggplayer.palive and((eggplayer.xplayer>=self.argx and eggplayer.xplayer<=self.argx+80 and eggplayer.yplayer>=self.argy and eggplayer.yplayer<=self.argy+80)
+                           or (eggplayer.xplayer+playerw>=self.argx and eggplayer.xplayer+playerw<=self.argx+80 and eggplayer.yplayer>=self.argy and eggplayer.yplayer<=self.argy+80)
+                           or (eggplayer.xplayer + playerw >= self.argx and eggplayer.xplayer + playerw <= self.argx + 80 and eggplayer.yplayer+playerh >= self.argy and eggplayer.yplayer+playerh <= self.argy + 80)
+                           or (eggplayer.xplayer >= self.argx and eggplayer.xplayer <= self.argx + 80 and eggplayer.yplayer+playerh >= self.argy and eggplayer.yplayer+playerh <= self.argy + 80)):
+            global arthaslive
+            arthaslive -= 1
+            self.exciting = False
+
+class Arthas:
+    def __init__(self):
+        self.sprite = [pygame.image.load('eggboss1.png'),
+                       pygame.image.load('eggboss2.png'),
+                       pygame.image.load('eggboss3.png'),
+                       pygame.image.load('eggboss4.png'),
+                       pygame.image.load('eggboss5.png'),
+                       pygame.image.load('eggboss6.png')]
+        self.animcount = 0
+        self.x = 480
+        self.y = 240
+        self.bulletlist = []
+        self.aimy = None
+        self.aim = False
+        self.ulti = False
+        self.ulticd = 100
+        self.walllist = []
+        self.wallcd = 150
+
+    def draw(self):
+        self.ulticd -= 1
+        self.wallcd -= 1
+
+        if self.ulticd == 0:
+            self.ultimate()
+            self.ulticd = 100
+            self.wallcd += 20
+
+        if self.wallcd == 0:
+            self.wall()
+            self.wallcd = 150
+            self.ulticd += 100
+
+        self.move()
+
+        if not self.ulti:
+            win.blit(self.sprite[0], (self.x, self.y))
+        else:
+            win.blit(self.sprite[self.animcount//5], (self.x, self.y))
+            self.animcount += 1
+            if self.animcount == 30:
+                self.animcount = 0
+                self. ulti = False
+
+        for i in self.bulletlist:
+            i.setposition(i.xbullet - 4, i.ybullet)
+            i.draw()
+            if i.xbullet < -20:
+                del i
+
+        for i in self.walllist:
+            i.get_arg(i.argx - 2, i.argy)
+            i.draw()
+            if i.argx < -40:
+                del i
+
+    def move(self):
+        if not self.aim:
+            self.aimy = random.randint(10, 110) * 4
+            self.aim = True
+        if self.y > self.aimy:
+            self.y -= 4
+        elif self.y < self.aimy:
+            self.y += 4
+        if self.y == self.aimy:
+            self.aim = False
+
+    def ultimate(self):
+        self.ulti = True
+        self.bulletlist.append(bullet(self.x - 20, self.y + 40))
+        self.bulletlist.append(bullet(self.x - 40, self.y + 60))
+        self.bulletlist.append(bullet(self.x - 40, self.y + 80))
+        self.bulletlist.append(bullet(self.x - 20, self.y + 100))
+
+    def wall(self):
+        count=40
+        while count < self.y:
+            self.walllist.append(deathblock(self.x - eggruncnt*2 + 4, count))
+            count += 40
+        count=560
+        while count > self.y + 160:
+            self.walllist.append(deathblock(self.x - eggruncnt*2 + 4, count))
+            count -= 40
 
 
 
-#Risovanie deistviy na ekrane
+
+        #Risovanie deistviy na ekrane
 def DrawWindow():
     win.blit(bg, (0, 0))
     global bulletlistsq
@@ -522,7 +636,7 @@ while intro:
     if intro_end:
         eggcounter += 1
         keys = pygame.key.get_pressed()
-        if eggcounter == 1000:
+        if eggcounter == 100:
             intro = False
             egg = True
             pygame.mixer.music.load("egg1.mp3")
@@ -543,7 +657,11 @@ while intro:
             intro_counter += 1
     pygame.time.delay(15)
 
-#main cycle
+eggplayer = player(10, 280)
+players.append(eggplayer)
+evil = Arthas()
+arthaskills = []
+
 while egg:
     clock.tick(100)
     for event in pygame.event.get():
@@ -559,14 +677,37 @@ while egg:
         keys = pygame.key.get_pressed()
         if keys[pygame.K_F5]:
             eggactive = True
+            pygame.mixer.music.load("arthasfight.mp3")
+            pygame.mixer.music.play(1)
     else:
         win.blit(eggbg, (eggruncnt*2, 0))
-        pygame.display.update()
+        eggplayer.draw()
+        arthaskillcd -= 1
         eggruncnt -= 1
-        if eggruncnt == -21:
+
+        if arthaskillcd == 0:
+            arthaskills.append(ArtasDestroyer(640, random.randint(40, 520)))
+            arthaskillcd = 400
+        if len(arthaskills) != 0:
+            arthaskills[0].draw()
+            if not arthaskills[0].exciting:
+                del arthaskills[0]
+
+        if eggruncnt == -20:
             eggruncnt = 0
 
+        keys=pygame.key.get_pressed()
 
+        if keys[pygame.K_w] and eggplayer.yplayer > 40:
+            eggplayer.gety(eggplayer.yplayer - 5)
+
+        if keys[pygame.K_s] and eggplayer.yplayer < 560:
+            eggplayer.gety(eggplayer.yplayer + 5)
+        evil.draw()
+        pygame.display.update()
+
+
+#main cycle
 while run:
     clock.tick(100)
     for event in pygame.event.get():
