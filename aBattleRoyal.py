@@ -573,6 +573,7 @@ class Arthas:
 
     def wall(self):
         count=40
+        global eggruncnt
         while count < self.y - 40:
             self.walllist.append(deathblock(self.x - eggruncnt*2 + 4, count))
             count += 40
@@ -764,6 +765,8 @@ while egg:
         win.blit(arthasliveimage[(5-arthaslive) % 6], (200, 5))
         if arthaslive == 0 and evil.exciting:
             evil.exciting = False
+            pygame.mixer.music.load("artlose.mp3")
+            pygame.mixer.music.play(1)
         pygame.display.update()
     else:
         win.blit(theend, (0, 0))
