@@ -33,8 +33,15 @@ dblocks=[]
 dblim=0
 dbnumber=-1
 #egg
+theend = pygame.image.load('theend.jpg')
+arthasliveimage = [pygame.image.load('arthaslive1.png'),
+                   pygame.image.load('arthaslive2.png'),
+                   pygame.image.load('arthaslive3.png'),
+                   pygame.image.load('arthaslive4.png'),
+                   pygame.image.load('arthaslive5.png'),
+                   pygame.image.load('arthaslive6.png')]
 arthaskillcd = 400
-arthaslive = 4
+arthaslive = 5
 eggruncnt = 0
 egg = False
 eggactive = False
@@ -462,6 +469,18 @@ class Arthas:
                        pygame.image.load('eggboss4.png'),
                        pygame.image.load('eggboss5.png'),
                        pygame.image.load('eggboss6.png')]
+
+        self.deathimage = [pygame.image.load('artdeath1.png'),
+                           pygame.image.load('artdeath2.png'),
+                           pygame.image.load('artdeath3.png'),
+                           pygame.image.load('artdeath4.png'),
+                           pygame.image.load('artdeath5.png'),
+                           pygame.image.load('artdeath6.png'),
+                           pygame.image.load('artdeath7.png'),
+                           pygame.image.load('artdeath8.png'),
+                           pygame.image.load('artdeath9.png'),
+                           pygame.image.load('artdeath10.png')]
+
         self.animcount = 0
         self.x = 480
         self.y = 240
@@ -472,43 +491,67 @@ class Arthas:
         self.ulticd = 100
         self.walllist = []
         self.wallcd = 150
+        self.exciting = True
+        self.exciting2 = True
 
     def draw(self):
-        self.ulticd -= 1
-        self.wallcd -= 1
+        if self.exciting:
+            self.ulticd -= 1
+            self.wallcd -= 1
+            global arthaslive
 
-        if self.ulticd == 0:
-            self.ultimate()
-            self.ulticd = 100
-            self.wallcd += 20
+            if self.ulticd == 0:
+                self.ultimate()
+                self.ulticd = 100 - (5 - arthaslive) * 15
+                self.wallcd += 20 + (5 - arthaslive) * 5
 
-        if self.wallcd == 0:
-            self.wall()
-            self.wallcd = 150
-            self.ulticd += 100
+            if self.wallcd == 0:
+                self.wall()
+                self.wallcd = 150
+                self.ulticd += 100 - (5 - arthaslive) * 20
 
-        self.move()
+            self.move()
 
-        if not self.ulti:
-            win.blit(self.sprite[0], (self.x, self.y))
+            if not self.ulti:
+                win.blit(self.sprite[0], (self.x, self.y))
+            else:
+                win.blit(self.sprite[self.animcount//5], (self.x, self.y))
+                self.animcount += 1
+                if self.animcount == 30:
+                    self.animcount = 0
+                    self. ulti = False
+
+            for i in self.bulletlist:
+                i.setposition(i.xbullet - 4, i.ybullet)
+                i.draw()
+                if i.xbullet < -20:
+                    del i
+
+            for i in self.walllist:
+                i.get_arg(i.argx - 2, i.argy)
+                i.draw()
+                if i.argx < -40:
+                    del i
         else:
-            win.blit(self.sprite[self.animcount//5], (self.x, self.y))
-            self.animcount += 1
-            if self.animcount == 30:
-                self.animcount = 0
-                self. ulti = False
-
-        for i in self.bulletlist:
-            i.setposition(i.xbullet - 4, i.ybullet)
-            i.draw()
-            if i.xbullet < -20:
-                del i
-
-        for i in self.walllist:
-            i.get_arg(i.argx - 2, i.argy)
-            i.draw()
-            if i.argx < -40:
-                del i
+            if self.x != 240 or self.x != 240:
+                if self.x < 240:
+                    self.x = (self.x + 4)
+                elif self.x > 240:
+                    self.x = (self.x - 4)
+                if self.y < 240:
+                    self.y = (self.y + 4)
+                elif self.y > 240:
+                    self.y = (self.y - 4)
+                win.blit(self.sprite[self.animcount//5], (self.x, self.y))
+                self.animcount += 1
+                if self.animcount == 30:
+                    self.animcount = 0
+            else:
+                win.blit(self.deathimage[self.animcount//5], (0, 0))
+                self.animcount += 1
+                if self.animcount == 49:
+                    self.animcount = 0
+                    self.exciting2 = False
 
     def move(self):
         if not self.aim:
@@ -530,11 +573,11 @@ class Arthas:
 
     def wall(self):
         count=40
-        while count < self.y:
+        while count < self.y - 40:
             self.walllist.append(deathblock(self.x - eggruncnt*2 + 4, count))
             count += 40
         count=560
-        while count > self.y + 160:
+        while count > self.y + 160 + 40:
             self.walllist.append(deathblock(self.x - eggruncnt*2 + 4, count))
             count -= 40
 
@@ -679,32 +722,53 @@ while egg:
             eggactive = True
             pygame.mixer.music.load("arthasfight.mp3")
             pygame.mixer.music.play(1)
-    else:
+    elif evil.exciting2 and eggplayer.palive:
         win.blit(eggbg, (eggruncnt*2, 0))
         eggplayer.draw()
-        arthaskillcd -= 1
         eggruncnt -= 1
 
-        if arthaskillcd == 0:
-            arthaskills.append(ArtasDestroyer(640, random.randint(40, 520)))
-            arthaskillcd = 400
-        if len(arthaskills) != 0:
-            arthaskills[0].draw()
-            if not arthaskills[0].exciting:
-                del arthaskills[0]
+        if evil.exciting:
+            arthaskillcd -= 1
+            if arthaskillcd == 0:
+                arthaskills.append(ArtasDestroyer(640, random.randint(40, 520)))
+                arthaskillcd = 400
+            if len(arthaskills) != 0:
+                arthaskills[0].draw()
+                if not arthaskills[0].exciting:
+                    del arthaskills[0]
 
         if eggruncnt == -20:
             eggruncnt = 0
 
         keys=pygame.key.get_pressed()
 
+        if keys[pygame.K_q] and eggplayer.yplayer > 40:
+            eggplayer.gety(eggplayer.yplayer - 10)
+
+        if keys[pygame.K_a] and eggplayer.yplayer < 560:
+            eggplayer.gety(eggplayer.yplayer + 10)
+
         if keys[pygame.K_w] and eggplayer.yplayer > 40:
             eggplayer.gety(eggplayer.yplayer - 5)
 
         if keys[pygame.K_s] and eggplayer.yplayer < 560:
             eggplayer.gety(eggplayer.yplayer + 5)
+
+        if keys[pygame.K_e] and eggplayer.yplayer > 40:
+            eggplayer.gety(eggplayer.yplayer - 1)
+
+        if keys[pygame.K_d] and eggplayer.yplayer < 560:
+            eggplayer.gety(eggplayer.yplayer + 1)
+
         evil.draw()
+        win.blit(arthasliveimage[(5-arthaslive) % 6], (200, 5))
+        if arthaslive == 0 and evil.exciting:
+            evil.exciting = False
         pygame.display.update()
+    else:
+        win.blit(theend, (0, 0))
+        pygame.display.update()
+
 
 
 #main cycle
@@ -746,8 +810,8 @@ while run:
         chainupgraders[len(chainupgraders)-1].get_arg(random.randint(0,15)*40,random.randint(0,15)*40)
         chainupcd = 600
 
-    snakebuttoncd -=1
-    if snakebuttoncd==0:
+    snakebuttoncd -= 1
+    if snakebuttoncd == 0:
         if len(snakebuttons) > 0:
             snakebuttons = []
         snakebuttons.append(snakebuttonclass())
