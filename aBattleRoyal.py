@@ -18,12 +18,14 @@ pygame.mixer.music.play(10)
 winw=640
 winh=640
 clock=pygame.time.Clock()
-
+runloop = True
 run=True
+restart =True
 
 win=pygame.display.set_mode((winw,winh))
 pygame.display.set_caption("Doka 2")
 pygame.display.set_icon(pygame.image.load('icon.jpg'))
+restartbg = pygame.image.load('restart.jpg')
 bg=pygame.image.load('background.jpg')
 dblock=pygame.image.load('deathblock.png')
 dcount= -1000
@@ -183,7 +185,7 @@ class armageddon:
                     self.lower_bullet_list.append(bullet(random.randint(0,15)*40+10, 670))
                 elif self.type_of_bullet==4:
                     self.left_bullet_list.append(bullet(-30, random.randint(0,15)*40+10))
-                self.bullet_spawn_cd=random.randint(1,40)
+                self.bullet_spawn_cd=random.randint(1, 40)
             self.bullet_spawn_cd -=1
 
             i_len=len(self.upper_bullet_list)
@@ -392,10 +394,6 @@ class player:
 
 
 
-myplayer=player(0, 0)
-myplayer1=player(600,600)
-players.append(myplayer)
-players.append(myplayer1)
 
 
 class deathblock:
@@ -651,7 +649,7 @@ while intro:
     clock.tick(100)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            run = False
+            runloop = False
             intro = False
             egg = False
     win.blit(introsprite[intro_counter//intro_fr], (0, 0))
@@ -666,8 +664,6 @@ while intro:
             pygame.mixer.music.play(1)
         if keys[pygame.K_f]:
             intro = False
-            pygame.mixer.music.load("music.mp3")
-            pygame.mixer.music.play(1)
     else:
         if intro_counter > 12*intro_fr:
             win.blit(introsprite[12], (0, 0))
@@ -689,8 +685,8 @@ while egg:
     clock.tick(100)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            run = False
             egg = False
+            runloop = False
     if not eggactive:
         win.blit(introsprite[11], (0, 0))
         win.blit(eastereggimage, (-640 + eggspritecnt*5, 320))
@@ -754,150 +750,210 @@ while egg:
 
 
 #main cycle
-while run:
-    clock.tick(100)
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run=False
+while runloop:
+    dcount= -1000
+    dcount1= -1
+    dcount2= 0
+    dblocks=[]
+    dblim=0
+    dbnumber=-1
+    bulletlistsq=0
+    shootcd=0
+    shootcdb=False
+    shootcd1=0
+    shootcdb1=False
+    leftbullets=[]
+    leftbulletsx=[]
+    leftbulletsy=[]
+    rightbullets=[]
+    rightbulletsx=[]
+    rightbulletsy=[]
+    upbullets=[]
+    upbulletsx=[]
+    upbulletsy=[]
+    downbullets=[]
+    downbulletsx=[]
+    downbulletsy=[]
+    chainupgraders=[]
+    chainupcd=200
+    snakebuttons=[]
+    snakebuttoncd=100
+    armageddons=[]
+    armageddoncd=200
 
-    dcount+=1
-    if dcount==20 and dcount2<16 and dbnumber<256:
-        dcount=0
-        dcount1+=1
-        if dcount1==15-2*dblim:
-            dblim+=1
-            dcount2+=1
-            dcount1=0
-            dbnumber += 1
-            dblocks.append(deathblock((dblim + dcount1) * 40, dcount2 * 40))
-            dbnumber += 1
-            dblocks.append(deathblock(600 - (dblim + dcount1) * 40, 600 - dcount2 * 40))
-            dbnumber += 1
-            dblocks.append(deathblock(600 - dcount2 * 40, (dblim + dcount1) * 40))
-            dbnumber += 1
-            dblocks.append(deathblock(dcount2 * 40, 600 - (dblim + dcount1) * 40))
-        else:
-            dbnumber += 1
-            dblocks.append(deathblock((dblim+dcount1)*40, dcount2*40))
-            dbnumber += 1
-            dblocks.append(deathblock(600-(dblim+dcount1)*40, 600-dcount2*40))
-            dbnumber += 1
-            dblocks.append(deathblock(600-dcount2*40, (dblim+dcount1)*40))
-            dbnumber += 1
-            dblocks.append(deathblock(dcount2*40, 600-(dblim+dcount1)*40))
+    myplayer=player(0, 0)
+    myplayer1=player(600,600)
+    players.append(myplayer)
+    players.append(myplayer1)
 
-    chainupcd-=1
-    if chainupcd==0:
-        chainupgraders.append(chainsawupgrader())
-        chainupgraders[len(chainupgraders)-1].get_arg(random.randint(0,15)*40,random.randint(0,15)*40)
-        chainupcd = 600
+    pygame.mixer.music.load("music.mp3")
+    pygame.mixer.music.play(1)
 
-    snakebuttoncd -= 1
-    if snakebuttoncd == 0:
-        snakebuttons.append(snakebuttonclass(random.randint(0,15)*40,random.randint(0,15)*40))
-        snakebuttoncd = 100
+    run = True
+    restart = True
 
-    armageddoncd -=1
-    if armageddoncd==0:
-        armageddons.append(armageddon(random.randint(0,15)*40,random.randint(0,15)*40))
-        armageddoncd=500
-    elif armageddoncd==100 and len(armageddons)!=0:
-        del armageddons[0]
+    while run and (myplayer.palive or myplayer1.palive):
+        clock.tick(100)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+                runloop = False
+                restart =False
+
+        dcount+=1
+        if dcount==20 and dcount2<16 and dbnumber<256:
+            dcount=0
+            dcount1+=1
+            if dcount1==15-2*dblim:
+                dblim+=1
+                dcount2+=1
+                dcount1=0
+                dbnumber += 1
+                dblocks.append(deathblock((dblim + dcount1) * 40, dcount2 * 40))
+                dbnumber += 1
+                dblocks.append(deathblock(600 - (dblim + dcount1) * 40, 600 - dcount2 * 40))
+                dbnumber += 1
+                dblocks.append(deathblock(600 - dcount2 * 40, (dblim + dcount1) * 40))
+                dbnumber += 1
+                dblocks.append(deathblock(dcount2 * 40, 600 - (dblim + dcount1) * 40))
+            else:
+                dbnumber += 1
+                dblocks.append(deathblock((dblim+dcount1)*40, dcount2*40))
+                dbnumber += 1
+                dblocks.append(deathblock(600-(dblim+dcount1)*40, 600-dcount2*40))
+                dbnumber += 1
+                dblocks.append(deathblock(600-dcount2*40, (dblim+dcount1)*40))
+                dbnumber += 1
+                dblocks.append(deathblock(dcount2*40, 600-(dblim+dcount1)*40))
+
+        chainupcd-=1
+        if chainupcd==0:
+            chainupgraders.append(chainsawupgrader())
+            chainupgraders[len(chainupgraders)-1].get_arg(random.randint(0,15)*40,random.randint(0,15)*40)
+            chainupcd = 600
+
+        snakebuttoncd -= 1
+        if snakebuttoncd == 0:
+            snakebuttons.append(snakebuttonclass(random.randint(0,15)*40,random.randint(0,15)*40))
+            snakebuttoncd = 100
+
+        armageddoncd -=1
+        if armageddoncd==0:
+            armageddons.append(armageddon(random.randint(0,15)*40,random.randint(0,15)*40))
+            armageddoncd=500
+        elif armageddoncd==100 and len(armageddons)!=0:
+            del armageddons[0]
 
 
 
 
 
 
-    if myplayer.palive:
+        if myplayer.palive:
+            keys=pygame.key.get_pressed()
+
+            if keys[pygame.K_w] and myplayer.yplayer>0:
+                myplayer.gety(myplayer.yplayer-pspeed)
+
+            if keys[pygame.K_s] and myplayer.yplayer<winh-playerh:
+                myplayer.gety(myplayer.yplayer + pspeed)
+
+            if keys[pygame.K_d] and myplayer.xplayer<winw-playerw:
+                myplayer.getx(myplayer.xplayer + pspeed)
+
+            if keys[pygame.K_a] and myplayer.xplayer>0:
+                myplayer.getx(myplayer.xplayer - pspeed)
+
+
+
+
+            shootcd+=1
+            if shootcd==10:
+                shootcdb=True
+                shootcd=0
+            if shootcdb:
+                shootcd=0
+                shootcdb=False
+                if keys[pygame.K_t]:
+                    upbullets.append(bullet(myplayer.xplayer+(playerw-bulleta)//2, myplayer.yplayer-bulleta-1))
+                    upbulletsx.append(myplayer.xplayer+(playerw-bulleta)//2)
+                    upbulletsy.append(myplayer.yplayer-bulleta-1)
+                elif keys[pygame.K_g]:
+                    downbullets.append(bullet(myplayer.xplayer+(playerw-bulleta)//2, myplayer.yplayer+playerh+1))
+                    downbulletsx.append(myplayer.xplayer+(playerw-bulleta)//2)
+                    downbulletsy.append(myplayer.yplayer+playerh+1)
+                elif keys[pygame.K_h]:
+                    rightbullets.append(bullet(myplayer.xplayer+playerw+1, myplayer.yplayer+(playerh-bulleta)//2))
+                    rightbulletsx.append(myplayer.xplayer+playerw+1)
+                    rightbulletsy.append(myplayer.yplayer+(playerh-bulleta)//2)
+                elif keys[pygame.K_f]:
+                    leftbullets.append(bullet(myplayer.xplayer-bulleta-1, myplayer.yplayer+(playerh-bulleta)//2))
+                    leftbulletsx.append(myplayer.xplayer-bulleta-1)
+                    leftbulletsy.append(myplayer.yplayer+(playerh-bulleta)//2)
+
+
+
+
+
+        if myplayer1.palive:
+            keys=pygame.key.get_pressed()
+
+            if keys[pygame.K_o] and myplayer1.yplayer>0:
+                myplayer1.gety(myplayer1.yplayer-pspeed)
+
+            if keys[pygame.K_l] and myplayer1.yplayer<winh-playerh:
+                myplayer1.gety(myplayer1.yplayer + pspeed)
+
+            if keys[pygame.K_SEMICOLON] and myplayer1.xplayer<winw-playerw:
+                myplayer1.getx(myplayer1.xplayer + pspeed)
+
+            if keys[pygame.K_k] and myplayer1.xplayer>0:
+                myplayer1.getx(myplayer1.xplayer - pspeed)
+
+
+
+
+            shootcd1+=1
+            if shootcd1==10:
+                shootcdb1=True
+                shootcd1=0
+            if shootcdb1:
+                shootcd1=0
+                shootcdb1=False
+                if keys[pygame.K_KP8]:
+                    upbullets.append(bullet(myplayer1.xplayer+(playerw-bulleta)//2, myplayer1.yplayer-bulleta-1))
+                    upbulletsx.append(myplayer1.xplayer+(playerw-bulleta)//2)
+                    upbulletsy.append(myplayer1.yplayer-bulleta-1)
+                elif keys[pygame.K_KP5]:
+                    downbullets.append(bullet(myplayer1.xplayer+(playerw-bulleta)//2, myplayer1.yplayer+playerh+1))
+                    downbulletsx.append(myplayer1.xplayer+(playerw-bulleta)//2)
+                    downbulletsy.append(myplayer1.yplayer+playerh+1)
+                elif keys[pygame.K_KP6]:
+                    rightbullets.append(bullet(myplayer1.xplayer+playerw+1, myplayer1.yplayer+(playerh-bulleta)//2))
+                    rightbulletsx.append(myplayer1.xplayer+playerw+1)
+                    rightbulletsy.append(myplayer1.yplayer+(playerh-bulleta)//2)
+                elif keys[pygame.K_KP4]:
+                    leftbullets.append(bullet(myplayer1.xplayer-bulleta-1, myplayer1.yplayer+(playerh-bulleta)//2))
+                    leftbulletsx.append(myplayer1.xplayer-bulleta-1)
+                    leftbulletsy.append(myplayer1.yplayer+(playerh-bulleta)//2)
+        if keys[pygame.K_LCTRL]:
+            run= False
+        pygame.time.delay(15)
+        DrawWindow()
+    while restart:
+        clock.tick(100)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                runloop = False
+                restart =False
+        win.blit(restartbg, (0, 0))
         keys=pygame.key.get_pressed()
-
-        if keys[pygame.K_w] and myplayer.yplayer>0:
-            myplayer.gety(myplayer.yplayer-pspeed)
-
-        if keys[pygame.K_s] and myplayer.yplayer<winh-playerh:
-            myplayer.gety(myplayer.yplayer + pspeed)
-
-        if keys[pygame.K_d] and myplayer.xplayer<winw-playerw:
-            myplayer.getx(myplayer.xplayer + pspeed)
-
-        if keys[pygame.K_a] and myplayer.xplayer>0:
-            myplayer.getx(myplayer.xplayer - pspeed)
-
-
-
-
-        shootcd+=1
-        if shootcd==10:
-            shootcdb=True
-            shootcd=0
-        if shootcdb:
-            shootcd=0
-            shootcdb=False
-            if keys[pygame.K_t]:
-                upbullets.append(bullet(myplayer.xplayer+(playerw-bulleta)//2, myplayer.yplayer-bulleta-1))
-                upbulletsx.append(myplayer.xplayer+(playerw-bulleta)//2)
-                upbulletsy.append(myplayer.yplayer-bulleta-1)
-            elif keys[pygame.K_g]:
-                downbullets.append(bullet(myplayer.xplayer+(playerw-bulleta)//2, myplayer.yplayer+playerh+1))
-                downbulletsx.append(myplayer.xplayer+(playerw-bulleta)//2)
-                downbulletsy.append(myplayer.yplayer+playerh+1)
-            elif keys[pygame.K_h]:
-                rightbullets.append(bullet(myplayer.xplayer+playerw+1, myplayer.yplayer+(playerh-bulleta)//2))
-                rightbulletsx.append(myplayer.xplayer+playerw+1)
-                rightbulletsy.append(myplayer.yplayer+(playerh-bulleta)//2)
-            elif keys[pygame.K_f]:
-                leftbullets.append(bullet(myplayer.xplayer-bulleta-1, myplayer.yplayer+(playerh-bulleta)//2))
-                leftbulletsx.append(myplayer.xplayer-bulleta-1)
-                leftbulletsy.append(myplayer.yplayer+(playerh-bulleta)//2)
-
-
-
-
-
-    if myplayer1.palive:
-        keys=pygame.key.get_pressed()
-
-        if keys[pygame.K_o] and myplayer1.yplayer>0:
-            myplayer1.gety(myplayer1.yplayer-pspeed)
-
-        if keys[pygame.K_l] and myplayer1.yplayer<winh-playerh:
-            myplayer1.gety(myplayer1.yplayer + pspeed)
-
-        if keys[pygame.K_SEMICOLON] and myplayer1.xplayer<winw-playerw:
-            myplayer1.getx(myplayer1.xplayer + pspeed)
-
-        if keys[pygame.K_k] and myplayer1.xplayer>0:
-            myplayer1.getx(myplayer1.xplayer - pspeed)
-
-
-
-
-        shootcd1+=1
-        if shootcd1==10:
-            shootcdb1=True
-            shootcd1=0
-        if shootcdb1:
-            shootcd1=0
-            shootcdb1=False
-            if keys[pygame.K_KP8]:
-                upbullets.append(bullet(myplayer1.xplayer+(playerw-bulleta)//2, myplayer1.yplayer-bulleta-1))
-                upbulletsx.append(myplayer1.xplayer+(playerw-bulleta)//2)
-                upbulletsy.append(myplayer1.yplayer-bulleta-1)
-            elif keys[pygame.K_KP5]:
-                downbullets.append(bullet(myplayer1.xplayer+(playerw-bulleta)//2, myplayer1.yplayer+playerh+1))
-                downbulletsx.append(myplayer1.xplayer+(playerw-bulleta)//2)
-                downbulletsy.append(myplayer1.yplayer+playerh+1)
-            elif keys[pygame.K_KP6]:
-                rightbullets.append(bullet(myplayer1.xplayer+playerw+1, myplayer1.yplayer+(playerh-bulleta)//2))
-                rightbulletsx.append(myplayer1.xplayer+playerw+1)
-                rightbulletsy.append(myplayer1.yplayer+(playerh-bulleta)//2)
-            elif keys[pygame.K_KP4]:
-                leftbullets.append(bullet(myplayer1.xplayer-bulleta-1, myplayer1.yplayer+(playerh-bulleta)//2))
-                leftbulletsx.append(myplayer1.xplayer-bulleta-1)
-                leftbulletsy.append(myplayer1.yplayer+(playerh-bulleta)//2)
-    pygame.time.delay(15)
-    DrawWindow()
-
+        if keys[pygame.K_r]:
+            restart= False
+        if keys[pygame.K_ESCAPE]:
+            restart = False
+            runloop = False
+        pygame.display.update()
+        pygame.time.delay(15)
 pygame.quit()
 
