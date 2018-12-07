@@ -26,13 +26,14 @@ pygame.display.set_caption("Doka 2")
 pygame.display.set_icon(pygame.image.load('icon.jpg'))
 bg=pygame.image.load('background.jpg')
 dblock=pygame.image.load('deathblock.png')
-dcount= -200
+dcount= -1000
 dcount1= -1
 dcount2= 0
 dblocks=[]
 dblim=0
 dbnumber=-1
 #egg
+timetoegg = 500
 theend = pygame.image.load('theend.jpg')
 arthasliveimage = [pygame.image.load('arthaslive1.png'),
                    pygame.image.load('arthaslive2.png'),
@@ -170,7 +171,7 @@ class armageddon:
                                    or (
                                            plyr.xplayer >= self.argx and plyr.xplayer <= self.argx + 40 and plyr.yplayer + playerh >= self.argy and plyr.yplayer + playerh <= self.argy + 40)):
                     self.doing = True
-                    armageddoncd=600
+                    armageddoncd=400
         elif self.doing:
             if self.bullet_spawn_cd == 0:
                 self.type_of_bullet=random.randint(1,4)
@@ -220,27 +221,8 @@ class armageddon:
                     del self.left_bullet_list[j]
                 else:
                     self.left_bullet_list[j].setposition(self.left_bullet_list[j].xbullet+10, self.left_bullet_list[j].ybullet)
-    def clear(self):
-        i_len=len(self.upper_bullet_list)
-        for i in range(i_len):
-            j=i_len - 1 - i
-            del self.upper_bullet_list[j]
-
-        i_len=len(self.right_bullet_list)
-        for i in range(i_len):
-            j=i_len - 1 - i
-            del self.right_bullet_list[j]
-
-        i_len=len(self.lower_bullet_list)
-        for i in range(i_len):
-            j=i_len - 1 - i
-            del self.lower_bullet_list[j]
-
-
-        i_len=len(self.left_bullet_list)
-        for i in range(i_len):
-            j=i_len - 1 - i
-            del self.left_bullet_list[j]
+    def __del__(self):
+        del self
 
 
 
@@ -272,16 +254,17 @@ class chainsawupgrader:
 
 
 class snakebuttonclass:
-    argx = int()
-    argy = int()
-    snake1 = []
-    snake2 = []
-    snake3 = []
-    snake4 = []
-    snakecounter=0
-    buttonexcicting = True
-    snaking = False
-    excicting = True
+    def __init__(self, arg1, arg2):
+        self.argx = arg1
+        self.argy = arg2
+        self.snake1 = []
+        self.snake2 = []
+        self.snake3 = []
+        self.snake4 = []
+        self.snakecounter=0
+        self.buttonexcicting = True
+        self.snaking = False
+        self.excicting = True
     def get_arg(self, arg1, arg2):
         self.argx = arg1
         self.argy = arg2
@@ -331,7 +314,7 @@ class snakebuttonclass:
             self.snakecounter += 1
             if self.snakecounter==50:
                 self.excicting=False
-    def clear(self):
+    def __del__(self):
         del self
 
 
@@ -503,7 +486,7 @@ class Arthas:
             if self.ulticd == 0:
                 self.ultimate()
                 self.ulticd = 100 - (5 - arthaslive) * 15
-                self.wallcd += 20 + (5 - arthaslive) * 5
+                self.wallcd += 20
 
             if self.wallcd == 0:
                 self.wall()
@@ -649,11 +632,7 @@ def DrawWindow():
     for snkbutt in range(len(snakebuttons)):
         snakebuttons[snkbutt-snkbuttsq].draw()
         if not snakebuttons[snkbutt-snkbuttsq].excicting:
-            for i in range(snkbutt-snkbuttsq,len(snakebuttons)-1):
-                snakebuttons[i].clear()
-                snakebuttons[i]=snakebuttons[i+1]
-            snakebuttons[len(snakebuttons)-1].clear()
-            del snakebuttons[len(snakebuttons)-1]
+            del snakebuttons[snkbutt-snkbuttsq]
             snkbuttsq += 1
 
     if len(armageddons) == 1:
@@ -680,7 +659,7 @@ while intro:
     if intro_end:
         eggcounter += 1
         keys = pygame.key.get_pressed()
-        if eggcounter == 100:
+        if eggcounter == timetoegg:
             intro = False
             egg = True
             pygame.mixer.music.load("egg1.mp3")
@@ -815,20 +794,15 @@ while run:
 
     snakebuttoncd -= 1
     if snakebuttoncd == 0:
-        if len(snakebuttons) > 0:
-            snakebuttons = []
-        snakebuttons.append(snakebuttonclass())
-        snakebuttons[len(snakebuttons)-1].get_arg(random.randint(0,15)*40,random.randint(0,15)*40)
-        snakebuttoncd = 400
+        snakebuttons.append(snakebuttonclass(random.randint(0,15)*40,random.randint(0,15)*40))
+        snakebuttoncd = 100
 
     armageddoncd -=1
     if armageddoncd==0:
         armageddons.append(armageddon(random.randint(0,15)*40,random.randint(0,15)*40))
         armageddoncd=500
     elif armageddoncd==100 and len(armageddons)!=0:
-        armageddons[0].clear()
         del armageddons[0]
-
 
 
 
